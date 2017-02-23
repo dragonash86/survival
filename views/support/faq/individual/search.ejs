@@ -1,0 +1,39 @@
+<% include ../../../include/header.ejs %>
+<% var VIEW_URL = "/support/faq/individual/search"; %>
+
+<section class="bg_sub_2 bg_customer">
+	<div>
+		<h2>FAQ</h2>
+		<strong>개인고객</strong>
+	</div>
+</section>
+
+<section class="container">
+	<ul class="breadcrumb">
+		<li><a href="/">Home</a><i>&#62;</i></li>
+		<li><a href="/support/faq/individual/1">고객지원</a><i>&#62;</i></li>
+		<li><a href="/support/faq/individual/1">FAQ</a><i>&#62;</i></li>
+		<li>개인고객</li>
+	</ul>
+</section>
+
+<% include ../include/search.ejs %>
+
+<section class="container" id="faq">
+	<h2 class="tit_2">
+		<strong>'<%=result.searchQuery%>'</strong>에 대한 FAQ 검색결과입니다.
+		<span>총 <%=result.rowCount%>건</span>
+	</h2>
+  <% if(result.data.length == 0) { %>
+    <p class="search_none">
+      '<%=result.searchQuery%>'에 대한 검색 결과가 없습니다.
+    </p>
+  <% }else { %>
+		<% include ../include/list.ejs %>
+  <% } %>
+	<a href="/support/faq/individual/1" id="listButton" class="faq_list"><button>목록</button></a>
+</section>
+
+
+<% include ./consultingFooter.ejs %>
+<% include ../../../include/footer.ejs %>

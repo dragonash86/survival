@@ -1,0 +1,135 @@
+<% include ../include/header.ejs %>
+<section class="bg_sub_2 bg_etc">
+    <div>
+        <h2>회사위치</h2>
+        <strong>오시는 길</strong>
+    </div>
+</section>
+<section class="container">
+    <ul class="breadcrumb">
+        <li><a href="/">Home</a><i>&#62;</i></li>
+        <li><a href="/company/estsecurity">회사소개</a><i>&#62;</i></li>
+        <li>회사 위치</li>
+    </ul>
+</section>
+
+<section class="container" id="map_info">
+    <div class="map_1">
+        <h2 class="tit_2">본사 위치</h2>
+        <div class="map_area">
+            <div id="map1"></div>
+            <script type="text/javascript" src="//apis.daum.net/maps/maps3.js?apikey=b89be2c51cc4c109180b20e2d69df148"></script>
+            <script type="text/javascript" src="//apis.daum.net/maps/maps3.js?apikey=APIKEY&libraries=services,clusterer,drawing"></script>
+            <script>
+                var mapContainer = document.getElementById('map1'), // 지도를 표시할 div
+                    mapOption = {
+                        center: new daum.maps.LatLng(37.4809383, 127.0124207), // 지도의 중심좌표
+                        level: 3 // 지도의 확대 레벨
+                    };
+
+                var map = new daum.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+                // 지도를 표시하는 div 크기를 변경하는 함수입니다
+                function resizeMap() {
+                    var mapContainer = document.getElementById('map1');
+                    // mapContainer.style.width = '100%';
+                    // mapContainer.style.height = '440px';
+                }
+
+                function relayout() {
+
+                    // 지도를 표시하는 div 크기를 변경한 이후 지도가 정상적으로 표출되지 않을 수도 있습니다
+                    // 크기를 변경한 이후에는 반드시  map.relayout 함수를 호출해야 합니다
+                    // window의 resize 이벤트에 의한 크기변경은 map.relayout 함수가 자동으로 호출됩니다
+                    map.relayout();
+                }
+
+                // 마커가 표시될 위치입니다
+                var markerPosition  = new daum.maps.LatLng(37.4809383, 127.0124207);
+                // 마커를 생성합니다
+                var marker = new daum.maps.Marker({
+                    position: markerPosition
+                });
+                // 마커가 지도 위에 표시되도록 설정합니다
+                marker.setMap(map);
+            </script>
+        </div>
+        <div class="info_loc">
+            <dl class="first_dl">
+                <dt>주소</dt>
+                <dd>(우) 06711 서울시 서초구 반포대로 3 이스트빌딩</dd>
+            </dl>
+            <dl class="second_dl">
+                <dt>교통 안내</dt>
+                <dd>
+                    <strong><em class="em_1">2</em>서초역 3번 출구</strong>
+                    <p>
+                        마을버스 서초11번 승차<em></em>HCN서초방송 하차 또는 예술의 전당 앞 하차<br/>
+                        일반버스 5413번, 405번 승차<em></em>서초3동 주민센터 하차 후 예술의 전당방향으로 5분 도보
+                    </p>
+                </dd>
+                <dd>
+                    <strong><em class="em_2">3</em>남부터미널역 5번 출구</strong>
+                    <p>
+                        마을버스 서초22번 승차<em></em>예술의 전당 앞 하차
+                    </p>
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="map_2">
+        <h2 class="tit_2">제주캠퍼스 위치</h2>
+        <div class="map_area">
+            <div id="map2"></div>
+            <script>
+                var mapContainer = document.getElementById('map2'), // 지도를 표시할 div
+                    mapOption = {
+                        center: new daum.maps.LatLng(33.4460238,126.5709648), // 지도의 중심좌표
+                        level: 3 // 지도의 확대 레벨
+                    };
+
+                var map = new daum.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+                // 지도를 표시하는 div 크기를 변경하는 함수입니다
+                function resizeMap() {
+                    var mapContainer = document.getElementById('map2');
+                }
+
+                function relayout() {
+                    map.relayout();
+                }
+
+                // 마커가 표시될 위치입니다
+                var markerPosition  = new daum.maps.LatLng(33.4460238,126.5709648);
+                // 마커를 생성합니다
+                var marker = new daum.maps.Marker({
+                    position: markerPosition
+                });
+                // 마커가 지도 위에 표시되도록 설정합니다
+                marker.setMap(map);
+            </script>
+        </div>
+        <div class="info_loc">
+            <dl class="first_dl">
+                <dt>주소</dt>
+                <dd>(우) 63309 제주특별자치도 제주시 첨단로 300</dd>
+            </dl>
+            <dl class="second_dl">
+                <dt>교통 안내</dt>
+                <dd>
+                    <strong><em class="em_1">일반</em>일반버스</strong>
+                    <p>
+                        7, 46, 48<em></em>다음커뮤니케이션 정류장 하차 도보 10분
+                    </p>
+                </dd>
+                <dd>
+                    <strong><em class="em_2">좌석</em>좌석버스</strong>
+                    <p>
+                        11, 37, 500, 502<em></em>다음커뮤니케이션 정류장 하차 도보 10분
+                    </p>
+                </dd>
+            </dl>
+        </div>
+    </div>
+</section>
+<% include ../include/footer.ejs %>

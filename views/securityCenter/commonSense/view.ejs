@@ -1,0 +1,27 @@
+<% var VIEW_URL = "/securityCenter/commonSense"; %>
+<% include ../../include/header.ejs %>
+<section class="bg_sub_2 bg_securitycenter">
+    <div>
+        <h2>보안정보</h2>
+        <strong>보안상식</strong>
+    </div>
+</section>
+
+<section class="container">
+    <ul class="breadcrumb">
+        <li><a href="/">Home</a><i>&#62;</i></li>
+        <li><a href="/securityCenter/news/1">보안센터</a><i>&#62;</i></li>
+        <li><a href="/securityCenter/commonSense/1">보안정보</a><i>&#62;</i></li>
+        <li>보안상식</li>
+    </ul>
+</section>
+
+<!-- BOARD 영역 시작 -->
+<section class="container board_view">
+    <% include ../board/view.ejs %>
+    <button onclick="window.location.href='<%=VIEW_URL%>/1'" id="listButton">목록</button>
+</section>
+
+<!-- BOARD 영역 종료 -->
+
+<% include ../../include/footer.ejs %>

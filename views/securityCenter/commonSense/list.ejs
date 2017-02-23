@@ -1,0 +1,44 @@
+<% var VIEW_URL = "/securityCenter/commonSense"; %>
+<% var IS_VIEW_CATEGORY = true %>
+
+<% include ../../include/header.ejs %>
+<section class="bg_sub_2 bg_securitycenter">
+    <div>
+        <h2>보안정보</h2>
+        <strong>보안상식</strong>
+    </div>
+</section>
+
+<section class="container">
+    <ul class="breadcrumb">
+        <li><a href="/">Home</a><i>&#62;</i></li>
+        <li><a href="/securityCenter/news/1">보안센터</a><i>&#62;</i></li>
+        <li><a href="/securityCenter/commonSense/1">보안정보</a><i>&#62;</i></li>
+        <li>보안상식</li>
+    </ul>
+</section>
+
+<section class="container" id="sc_notice">
+    <div class="tab_wrap tab_wrap_1">
+        <ul class="tab">
+            <li><a href="<%=VIEW_URL%>/1">ALL</a></li>
+            <li><a href="<%=VIEW_URL%>/1?category=<%=encodeURI('PC일반')%>">PC일반</a></li>
+            <li><a href="<%=VIEW_URL%>/1?category=<%=encodeURI('해킹')%>">해킹</a></li>
+            <li><a href="<%=VIEW_URL%>/1?category=<%=encodeURI('기타')%>">기타</a></li>
+        </ul>
+    </div>
+    <div class="tab_mobile">
+        <select name="urlLink2" id="urlLink2">
+            <option value="<%=VIEW_URL%>/1">ALL</option>
+            <option value="<%=VIEW_URL%>/1?category=PC일반">PC일반</option>
+            <option value="<%=VIEW_URL%>/1?category=해킹">해킹</option>
+            <option value="<%=VIEW_URL%>/1?category=기타">기타</option>
+        </select>
+    </div>
+    <!-- board 영역 시작 -->
+    <% include ../board/list.ejs %>
+    <!-- board 영역 종료 -->
+</section>
+
+
+<% include ../../include/footer.ejs %>

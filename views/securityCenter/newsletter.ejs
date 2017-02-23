@@ -1,0 +1,43 @@
+<% var VIEW_URL = "/securityCenter/newsletter"; %>
+<% include ../include/header.ejs %>
+<section class="bg_sub_2 bg_securitycenter">
+    <div>
+        <h2>보안자료</h2>
+        <strong>뉴스레터</strong>
+        <p>더욱 안전한 보안 환경을 위해, 이스트시큐리티가 전하는 유용한 정보를 확인하세요!</p>
+    </div>
+</section>
+<section class="container">
+    <ul class="breadcrumb">
+        <li><a href="/">Home</a><i>&#62;</i></li>
+        <li><a href="/securityCenter/news/1">보안센터</a><i>&#62;</i></li>
+        <li><a href="/securityCenter/newsletter/1">보안자료</a><i>&#62;</i></li>
+        <li>뉴스레터</li>
+    </ul>
+</section>
+<section class="container">
+    <div class="center_list_letter">
+        <ul class="accordion_view">
+            <% for(var key in result.data){%>
+                <% if(key == "contains") continue; %>
+                <li>
+                    <a href="#n">
+                        <span class="col-md-2"><%=moment(result.data[key].reg_timestamp).format("YYYY년 MM월")%></span>
+                        <span class="col-md-9"><%=result.data[key].title%></span>
+                        <span class="col-md-1"><i><span class="ico ico_open">열린 메뉴</span></i></span>
+                    </a>
+                    <div class="col-md-12">
+                        <%-result.data[key].content%>
+                        <% if (result.data[key].thumbnail_text != null) { %>
+                            <a href="<%=result.data[key].thumbnail_text%>" class="btn">PDF 파일 다운로드</a>
+                        <% } %> 
+                        
+                    </div>
+                </li>
+            <%}%>
+        </ul>
+        <% include ./board/pagination.ejs %>
+
+    </div>
+</section>
+<% include ../include/footer.ejs %>

@@ -1,0 +1,98 @@
+<% include ../../../include/header.ejs %>
+<% var VIEW_URL = "/support/faq/individual"; %>
+
+
+<section class="bg_sub_2 bg_customer">
+	<div>
+		<h2>FAQ</h2>
+		<strong>개인고객</strong>
+	</div>
+</section>
+
+<section class="container">
+	<ul class="breadcrumb">
+		<li><a href="/">Home</a><i>&#62;</i></li>
+		<li><a href="/support/faq/individual/1">고객지원</a><i>&#62;</i></li>
+		<li><a href="/support/faq/individual/1">FAQ</a><i>&#62;</i></li>
+		<li>개인고객</li>
+	</ul>
+</section>
+
+<% include ../include/search.ejs %>
+<section class="container" id="top5">
+	<div class="col-md-8">
+	<h2 class="tit_2">개인고객 질문 TOP 5</h2>
+		<ul class="accordion">
+        <% for(var key in top5Result.data) { %>
+          <% if(key == "contains") continue; %>
+          <li>
+              <a href="#"><%=top5Result.data[key].title%><i><span class="ico ico_open">열린 메뉴</span></i></a>
+              <div><%-top5Result.data[key].content%></div>
+          </li>
+        <%  } %>
+
+		</ul>
+	</div>
+	<div class="col-md-4">
+		<a href="/product/alyac_android"><img src="/images/bn_faq_1.png" alt="앱 하나로 안전하고 편리하게! 알약 안드로이드 카카오톡 파일 정리 기능 추가"/></a>
+		<div id="faq_top" style="padding:0;margin:0;"></div>
+	</div>
+
+</section>
+
+<section class="container" id="section_1">
+	<h2 class="tit_2">개인고객 FAQ</h2>
+	<div class="tab_wrap tab_wrap_1">
+		<ul class="tab">
+			<li><a href="<%=VIEW_URL%>/1#faq_top">ALL</a></li>
+			<li><a href="<%=VIEW_URL%>/1?category=<%=encodeURI('알약')%>#faq_top">알약</a></li>
+			<li><a href="<%=VIEW_URL%>/1?category=<%=encodeURI('알약익스플로잇쉴드')%>#faq_top">알약 익스플로잇 쉴드</a></li>
+			<li><a href="<%=VIEW_URL%>/1?category=<%=encodeURI('알약안드로이드')%>#faq_top">알약 안드로이드</a></li>
+			<li><a href="<%=VIEW_URL%>/1?category=<%=encodeURI('전용백신')%>#faq_top">전용백신</a></li>
+			<li><a href="<%=VIEW_URL%>/1?category=<%=encodeURI('기타')%>#faq_top">기타</a></li>
+		</ul>
+	</div>
+
+	<div class="tab_mobile">
+		<select name="urlLink2" id="urlLink2">
+			<option value="<%=VIEW_URL%>/1">ALL</option>
+			<option value="<%=VIEW_URL%>/1?category=알약">알약</option>
+			<option value="<%=VIEW_URL%>/1?category=알약익스플로잇쉴드">알약 익스플로잇 쉴드</option>
+			<option value="<%=VIEW_URL%>/1?category=알약안드로이드">알약 안드로이드</option>
+			<option value="<%=VIEW_URL%>/1?category=전용백신">전용백신</option>
+			<option value="<%=VIEW_URL%>/1?category=기타">기타</option>
+		</select>
+	</div>
+
+	<% include ../include/list.ejs %>
+</section>
+
+<section class="consulting">
+	<ul>
+		<li class="col-md-6">
+			<strong>
+				백신 및 솔루션 구매 문의
+			</strong>
+			<a href="/buy/estimate" class="btn_link">문의하기</a>
+			<p>
+				제품 구매와 관련하여 문의 주시면 <br>
+				상세하게 안내 드리겠습니다.
+			</p>
+		</li>
+		<li class="col-md-6">
+			<strong>
+				개인고객 기술지원
+			</strong>
+			<a href="tel:1544-8209">1544-8209</a>
+			<p>
+				상담 시간<br>
+				[평일] 9:00 – 18:00<br>
+				[토요일, 공휴일] 휴무
+			</p>
+		</li>
+	</ul>
+</section>
+
+
+
+<% include ../../../include/footer.ejs %>

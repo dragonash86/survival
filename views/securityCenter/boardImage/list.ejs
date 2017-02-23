@@ -1,0 +1,25 @@
+<section class="container" id="center_column">
+    <ul class="thumb_list_wrap">
+        <% for(var key in result.data){
+            if(key == "contains") continue;
+        %>
+            <li>
+                <div class="col-md-2">
+                    <a href="<%=VIEW_URL%>/view/<%=result.data[key].id%>" class="thumb_img">
+                        <img src="<%=result.data[key].thumbnail_img%>" alt="" />
+                    </a>
+                </div>
+                <div class="col-md-10">
+                    <div class="thumb_txt">
+                        <a href="<%=VIEW_URL%>/view/<%=result.data[key].id%>">
+                            <strong><%=result.data[key].title%></strong>
+                            <p class="ellipsis_2"><%=result.data[key].thumbnail_text%></p>
+                        </a>
+                        <span><%=moment(result.data[key].reg_timestamp).format("YYYY-MM-DD")%></span>
+                    </div>
+                </div>
+            </li>
+        <% } %>
+    </ul>
+    <% include ../board/pagination.ejs %>
+</section>

@@ -1,0 +1,49 @@
+<table class="tbl">
+	<caption class="blind">FAQ</caption>
+	<thead>
+	<tr>
+		<th width="80px">번호</th>
+		<th width="150px">분류</th>
+		<th width="auto">제목</th>
+	</tr>
+	</thead>
+	<tbody>
+	<% if(result.data.length == 0){ %>
+ 		<tr>
+ 			<td colspan = "3">데이터가 없습니다.</td>
+ 		</tr>
+	<% } %>
+        
+	<% for(var key in result.data){ %>
+        <% if(key == "contains") continue; %>
+        <tr>
+  				<td><%=result.data[key].id%></td>
+  				<td><%=result.data[key].category%></td>
+  				<td class="lt">
+  					<div class="td_textarea">
+  						<a href="<%=VIEW_URL.replace('/search','')%>/view/<%=result.data[key].id%>"><%=result.data[key].title%></a>
+  					</div>
+  				</td>
+  			</tr>
+    	<% } %>
+	</tbody>
+</table>
+
+<div class="tab_mobile">
+	<div class="faq_list_mobile">
+		<h3>
+		</h3>
+ 		<ul>
+		    <% for(var key in result.data){ %>
+		    	<li>
+					<a href="<%=VIEW_URL.replace('/search','')%>/view/<%=result.data[key].id%>">
+						<span><%=result.data[key].category%></span>
+						<%=result.data[key].title%>
+					</a>
+				</li>
+		    <% } %>
+		</ul>
+	</div>
+</div>
+
+<% include ../../../securityCenter/board/pagination.ejs %>

@@ -1,0 +1,28 @@
+    <div class="view_head">
+        <h4><%=result.contents.category%></h4>
+        <p class="lt"><%=result.contents.title%></p>
+        <span class="gt"><%=moment(result.contents.reg_timestamp).format("YYYY-MM-DD")%></span>
+    </div>
+    <div class="view_body">
+        <%-String(result.contents.content).replace(new RegExp('\r?\n','g'), '')%>
+
+    </div>
+    <div class="view_option">
+        <p>
+            <span>다음글</span>
+            <% if(result.next == null){%>
+                <a href="#">다음글이 없습니다.</a>
+            <% } else { %>
+                <a href="<%=VIEW_URL%>/view/<%=result.next.id%>"><%=result.next.title%></a>
+            <% } %>
+        </p>
+        <p>
+            <span>이전글</span>
+            <% if(result.prov == null){%>
+                <a href="#">이전글이 없습니다.</a>
+            <% } else { %>
+                <a href="<%=VIEW_URL%>/view/<%=result.prov.id%>"><%=result.prov.title%></a>
+            <% } %>
+
+        </p>
+    </div>
