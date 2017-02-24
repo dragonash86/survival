@@ -1,63 +1,42 @@
 @charset "utf-8";
-html{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;overflow-x:hidden;overflow-y:auto}
-html,body{min-height:100%}
-body{font-family:'맑은 고딕',Malgun Gothic,'돋움',dotum,'굴림',gulim,Arial,AppleGothic,verdana,sans-serif,helvetica;font-size:14px;line-height:1.42857143;color:#111;background-color:#fff;margin:0;padding:0 !important;letter-spacing:-1px}
-article,aside,details,figcaption,figure,footer,header,hgroup,main,menu,nav,section,summary{display:block}
-audio,canvas,progress,video{display:inline-block;vertical-align:baseline}
-audio:not([controls]){display:none;height:0}
-[hidden],template{display:none}
-a{color:#000;background-color:transparent;text-decoration:none}
+html{height:100%}
+html,body,div,p,img,span,a,em,strong,pre,h1,h2,h3,h4,h5,h6,ul,ol,li,dl,dt,dd,table,tbody,thead,tfoot,tr,th,td,form,fieldset,legend,caption,input,textarea,button,select,object,video,iframe{margin:0;padding:0}
+body{font-family:'맑은 고딕',Malgun Gothic,'돋움',dotum,'굴림',gulim,Arial,AppleGothic,verdana,sans-serif,helvetica;font-size:14px;color:#111;width:100%;height:100%}
+body,h1,h2,h3,h4,h5,h6{color:#76645F;line-height:1}
+img,fieldset,button{border:0}
+table{border-collapse:collapse;border-spacing:0}
+ul,ol{list-style:none}
+em,address{font-style:normal}
+a,a:link{text-decoration:none;color:#76645F}
 a:hover{text-decoration:underline}
-a,a:focus,a:hover,a:active{outline:0}
+hr{display:none}
+legend,caption,.blind{position:absolute;top:-9999px;font-size:0;line-height:0}
 label{cursor:pointer}
-abbr[title]{border-bottom:1px dotted}
-dfn{font-style:italic}
-mark{color:#000;background:#ff0}
-small{font-size:80%}
-sub,sup{position:relative;font-size:75%;line-height:0;vertical-align:baseline}
-sup{top:-.5em}
-sub{bottom:-.25em}
-img{border:0;vertical-align:top}
-svg:not(:root){overflow:hidden}
-figure{margin:1em 40px}
-hr{height:0;-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box}
-pre{overflow:auto}
-code,kbd,pre,samp{font-family:monospace,monospace;font-size:1em}
-button,input,optgroup,select,textarea{margin:0;font:inherit;color:inherit}
-button{overflow:visible;background:none;border:0;margin:0;padding:0;cursor:pointer}
-button,select{text-transform:none}
-button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}
-button[disabled],html input[disabled]{cursor:default}
-button::-moz-focus-inner,input::-moz-focus-inner{padding:0;border:0}
-input{line-height:normal;letter-spacing:-1px}
-input:-webkit-autofill{color:#ffffff!important}
-input[type="checkbox"],input[type="radio"]{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;padding:0;display:inline-block;cursor:pointer;width:15px;height:15px;border:0}
-input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{height:auto}
-input[type="search"]{-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;-webkit-appearance:textfield}
-input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration{-webkit-appearance:none}
-input:-ms-input-placeholder, textarea:-ms-input-placeholder{color:#888}
-input::-webkit-input-placeholder, textarea::-webkit-input-placeholder{color:#888}
-input::-moz-placeholder, textarea::-moz-placeholder{color:#888}
-iframe,fieldset{border:0;margin:0;padding:0}
-legend{padding:0;border:0}
-textarea{overflow:auto;resize:none}
-textarea,input,button,*:focus{outline:none!important}
-select{border:2px solid #E5E7E9;border-radius:6px;height:46px;padding:12px;outline:none}
-table{border-spacing:0;border-collapse:collapse}
-td,th{padding:0;margin:0}
-ul,li{list-style:none;padding:0;margin:0}
-dl,dt,dd{padding:0;margin:0}
-p{display:block;-webkit-margin-before:0;-webkit-margin-after:0;-webkit-margin-start:0;-webkit-margin-end:0;margin:0;padding:0}
-h1,h2,h3,h4,h5,h6{color:#333;font-weight:300;margin:0;padding:0}
-em,i,address{font-style:normal}
 *{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}
-*:before,*:after{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}
+
+/* common */
+h2{padding:30px 0}
 .blind{overflow:hidden;position:absolute;top:-9999px;left:-9999px;width:1px;height:1px;font-size:1px;height:1px}
+.btn{display:block;width:158px;height:40px;line-height:36px;font-size:16px;text-align:center;color:#1c2833;border:1px solid #1c2833;margin:30px auto}
+.btn:hover{color:#fff;background:#1c2833;text-decoration:none}
+
+/* 회원가입 */
+.join form ul{width:100%;border-top:1px solid #111;border-bottom:1px solid #ddd}
+.join form li label{display:inline-block;width:25.64%;font-weight:normal;color:#111;padding:27px 0 27px 3.42%}
+.join form li input{width:300px;height:36px;padding:9px 15px;border:1px solid #ddd}
+.join form li span{color:#EA4836;padding:0 10px}
+@media (max-width:768px) {
+	.join form li input{width:100%}
+	.join form li label{width:100%;padding:13px 5px}
+}
+
+
+
+
 .fixed{position:fixed !important}
 .container{position:relative;padding:0 10px;margin:0 auto}
 .btn_top{display:block;width:33px;height:33px;background:url("../images/btn_top.gif") no-repeat;background-size:33px 33px}
 #wrapper{padding-top:130px}
-
 /* 제품 Tab fixed 시 여백 */
 #overview.fixed_padding{padding-top:90px}
 
@@ -890,45 +869,6 @@ span.web_top_overlay{background-color:rgba(0,0,0,0.5);position:fixed;top:0; righ
 #prd_support .input_check input{height:13px;vertical-align:-9px;margin-right:6px}
 #prd_support .input_check label{vertical-align:-7px;color:#555}
 
-#cs_inquire{margin:72px auto 0}
-#cs_inquire form ul{width:100%;border-top:1px solid #111;border-bottom:1px solid #ddd}
-#cs_inquire form li label{display:inline-block;width:25.64%;font-weight:normal;color:#111;padding:27px 0 27px 3.42%;text-align:left}
-#cs_inquire form li input{width:15.95%; height:36px;padding:9px 15px;border:1px solid #ddd}
-#cs_inquire form li span{color:#555;padding:0 3px}
-#cs_inquire form li select{height:36px;line-height:32px;border:1px solid #ddd;border-radius:0;padding:6px 15px}
-#cs_inquire form li .select_box{width:25.38%}
-#cs_inquire form .ipt_num input{width:9%}
-#cs_inquire form .ipt_mail input{width:14.27%}
-#cs_inquire form .ipt_mail select{width:14.27%;margin-left:0.34%}
-#cs_inquire form .ipt_title input{width:70.77%}
-#cs_inquire form .ipt_title{border-top:1px solid #ddd}
-#cs_inquire form .ipt_cnt label{vertical-align:top}
-#cs_inquire form .ipt_cnt textarea{width:70.77%;height:288px;border:1px solid #ddd;margin:27px 0;padding:9px 15px}
-#cs_inquire .btn_inquire{position:relative;height:128px}
-#cs_inquire .btn_inquire p{position:absolute;top:18px;right:0;font-size:14px;color:#0469af}
-#cs_inquire .btn_inquire p a{text-decoration:underline;color:#0469af}
-#cs_inquire button{position:absolute;top:60px;left:50%;width:158px;height:40px;line-height:36px;font-size:16px;text-align:center;color:#1c2833;border:1px solid #1c2833;margin-left:-79px}
-#cs_inquire button:hover{color:#fff;background:#1c2833}
-#cs_inquire .tit_2 span{letter-spacing:-1px !important}
-@media (max-width:768px) {
-    #prd_support .prd_notice{padding:15px}
-    #prd_support .prd_notice strong{background-image:none;padding-left:0;margin-bottom:10px}
-    #prd_support .text_area{padding:13px}
-    #prd_support .input_check{margin-top:10px}
-    #cs_inquire form li{width:100%}
-    #cs_inquire form li input{width:100%}
-    #cs_inquire form li label{width:100%;padding:13px 5px}
-    #cs_inquire form li .select_box{width:100%;padding:9px 3px}
-    #cs_inquire form .ipt_num input{width:28%}
-    #cs_inquire form .ipt_mail{margin-bottom:13px}
-    #cs_inquire form .ipt_mail input{width:44.5%}
-    #cs_inquire form .ipt_mail select{display:none}
-    #cs_inquire form .ipt_title input{width:100%}
-    #cs_inquire form .ipt_cnt textarea{width:100%;margin:0 auto 13px}
-    #cs_inquire .btn_inquire{position:static;height:auto;text-align:center}
-    #cs_inquire .btn_inquire p{position:static;text-align:center;padding:20px 0 16px}
-    #cs_inquire .btn_inquire button{position:static;margin:0 auto 60px}
-}
 /* 제휴문의 */
 #partnership{padding-bottom:120px}
 #partnership .breadcrumb{padding:10px 10px 26px 0}
