@@ -1,28 +1,28 @@
 <% include include/header.ejs %>
 	<div class="container join">
 		<h2>회원가입</h2>
-		<form name="" action="">
+		<form action="/join" method="post">
 		    <fieldset>
 		        <legend class="blind">회원가입 폼</legend>
 		        <ul>
 					<li>
-						<label for="inputId">아이디</label>
-						<input type="text" id="inputId" />
+						<label for="userId">아이디</label>
+						<input type="text" id="userId" />
 						<span></span>
 					</li>
 					<li>
-						<label for="inputPw">비밀번호</label>
-						<input type="password" id="inputPw" />
+						<label for="userPw">비밀번호</label>
+						<input type="password" id="userPw" />
 						<span></span>
 					</li>
 					<li>
-						<label for="inputPwC">비밀번호 확인</label>
-						<input type="password" id="inputPwC" />
+						<label for="userPwC">비밀번호 확인</label>
+						<input type="password" id="userPwC" />
 						<span></span>
 					</li>
 					<li>
-						<label for="inputNick">닉네임</label>
-						<input type="text" id="inputNick" />
+						<label for="userNick">닉네임</label>
+						<input type="text" id="userNick" />
 						<span></span>
 					</li>
 		        </ul>
@@ -33,43 +33,45 @@
 	<script>
 		$(function() {
 			$(".join .btn").click(function() {
-				if($("#inputId").val() === "") {
-					$("#inputId").next().text("아이디를 입력하세요.");
-					$("#inputId").focus();
+				if($("#userId").val() === "") {
+					$("#userId").next().text("아이디를 입력하세요.");
+					$("#userId").focus();
 					return;
 				} else {
-					$("#inputId").next().text("");
+					$("#userId").next().text("");
 				}
-				if($("#inputPw").val() === "") {
-					$("#inputPw").next().text("비밀번호를 입력하세요.");
-					$("#inputPw").focus();
+				if($("#userPw").val() === "") {
+					$("#userPw").next().text("비밀번호를 입력하세요.");
+					$("#userPw").focus();
 					return;
 				} else {
-					$("#inputPw").next().text("");
+					$("#userPw").next().text("");
 				}
-				if($("#inputPwC").val() === "") {
-					$("#inputPwC").next().text("비밀번호를 다시 입력하세요.");
-					$("#inputPwC").focus();
+				if($("#userPwC").val() === "") {
+					$("#userPwC").next().text("비밀번호를 다시 입력하세요.");
+					$("#userPwC").focus();
 					return;
 				} else {
-					$("#inputPwC").next().text("");
+					$("#userPwC").next().text("");
 				}
-				if($("#inputPwC").val() !== $("#inputPw").val()) {
-					$("#inputPwC").next().text("비밀번호를 정확히 입력하세요.");
-					$("#inputPwC").focus();
+				if($("#userPwC").val() !== $("#userPw").val()) {
+					$("#userPwC").next().text("비밀번호를 정확히 입력하세요.");
+					$("#userPwC").focus();
 					return;
 				} else {
-					$("#inputPwC").next().text("");
+					$("#userPwC").next().text("");
 				}
-				if($("#inputNick").val() === "") {
-					$("#inputNick").next().text("닉네임을 입력하세요.");
-					$("#inputNick").focus();
+				if($("#userNick").val() === "") {
+					$("#userNick").next().text("닉네임을 입력하세요.");
+					$("#userNick").focus();
 					return;
 				} else {
-					$("#inputNick").next().text("");
+					$("#userNick").next().text("");
 				}
 				$(".join form").submit();
 			});
+
+
 		});
 	</script>
 <% include include/footer.ejs %>
