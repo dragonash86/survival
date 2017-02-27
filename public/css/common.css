@@ -19,16 +19,34 @@ h2{padding:30px 0}
 .blind{overflow:hidden;position:absolute;top:-9999px;left:-9999px;width:1px;height:1px;font-size:1px;height:1px}
 .btn{display:block;width:158px;height:40px;line-height:36px;font-size:16px;text-align:center;color:#1c2833;border:1px solid #1c2833;margin:30px auto}
 .btn:hover{color:#fff;background:#1c2833;text-decoration:none}
+.container{width:100%;padding:30px;margin:0 auto}
 
 /* 회원가입 */
-.join{width:1200px;margin:0 auto}
-.join form ul{width:100%;border-top:1px solid #111;border-bottom:1px solid #ddd}
-.join form li label{display:inline-block;width:25.64%;font-weight:normal;color:#111;padding:27px 0 27px 3.42%}
-.join form li input{width:300px;height:36px;padding:9px 15px;border:1px solid #ddd}
-.join form li span{color:#EA4836;padding:0 10px}
+.join ul{width:100%;border-top:1px solid #111;border-bottom:1px solid #ddd;padding:15px 0}
+.join li label{display:inline-block;width:25.64%;font-weight:normal;color:#111;padding:27px 0 27px 3.42%}
+.join li input{width:300px;height:36px;padding:9px 15px;border:1px solid #ddd}
+.join li span{color:#EA4836;padding:0 10px}
 @media (max-width:768px) {
-	.join form li input{width:100%}
-	.join form li label{width:100%;padding:13px 5px}
+	.join li{position:relative;padding-bottom:30px}
+	.join li input{width:100%}
+	.join li label{width:100%;padding:13px 0}
+	.join li span{position:absolute;padding:0;margin-top:10px}
 }
 
-
+/* 로그인 */
+.login{width:457px;margin:160px auto}
+.login h2{margin-bottom:12px}
+.login h2 span{display:inline-block;margin:8px 0 0 12px;font-weight:normal;letter-spacing:-1px}
+.login_wrap{position:relative;*zoom:1;padding:46px 58px;border:1px solid #e3e5e5;background:#f8f8f8}
+.login_wrap .field{position:relative;height:32px}
+.login_wrap .field.first{margin-bottom:6px}
+.login_wrap .field label{position:absolute;left:10px;top:9px;color:#a6a6a6}
+.login_wrap .field .inp_text{background:#fff;height:30px;line-height:30px;width:222px;font-weight:bold}
+.login_wrap .bc.bc_org{position:absolute;left:307px;top:46px}
+.login_wrap .btn_lnk{margin-top:13px;margin-bottom:19px;text-align:right;font-size:12px;color:#454545;letter-spacing:-1px}
+.login_wrap .btn_lnk.easy{margin-top:32px;margin-bottom:0px}
+.login .guide_txt{padding-left:8px;background:url(../img/altoolsRenewal/bul_mb_arrow.gif) no-repeat 0 50%;margin-top:19px;*margin-top:17px;letter-spacing:-1px}
+:root .login .guide_txt{margin-top:18px \0/IE9+10} 
+.login .guide_txt input{vertical-align:middle;*vertical-align:bottom}
+.login .guide_txt a{text-decoration:underline}
+.login .guide_txt .pt img{vertical-align:-4px;_vertical-align:bottom}
