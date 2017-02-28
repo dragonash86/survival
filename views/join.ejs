@@ -7,7 +7,7 @@
 		        <ul class="border_layout">
 					<li>
 						<label for="userId">아이디</label>
-						<input type="text" id="userId" name="userId" />
+						<input type="text" id="userId" name="userId" autocomplete="off" />
 						<span></span>
 					</li>
 					<li>
@@ -22,7 +22,7 @@
 					</li>
 					<li>
 						<label for="userNick">닉네임</label>
-						<input type="text" id="userNick" name="userNick" />
+						<input type="text" id="userNick" name="userNick" autocomplete="off" />
 						<span></span>
 					</li>
 		        </ul>
@@ -70,11 +70,10 @@
 				}
 				$(".join form").submit();
 			}
-			//엔터키 가입
-			$(".join input").keydown(function(key) {
+			$("input").keydown(function(key) {
 				if(key.keyCode == 13) validation();
 			});
-			$(".join .btn").click(function(e) {
+			$(".btn").click(function(e) {
 				e.preventDefault();
 				validation();
 			});
