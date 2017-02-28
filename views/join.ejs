@@ -4,7 +4,7 @@
 		<form action="/joinForm" method="post">
 		    <fieldset>
 		        <legend class="blind">회원가입 폼</legend>
-		        <ul>
+		        <ul class="border_layout">
 					<li>
 						<label for="userId">아이디</label>
 						<input type="text" id="userId" name="userId" />
@@ -72,9 +72,7 @@
 			}
 			//엔터키 가입
 			$(".join input").keydown(function(key) {
-				if(key.keyCode == 13) {
-					validation();
-				}
+				if(key.keyCode == 13) validation();
 			});
 			$(".join .btn").click(function(e) {
 				e.preventDefault();

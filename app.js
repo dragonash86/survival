@@ -1,27 +1,44 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var session = require('express-session');
 var app = express();
 
 app.use(express.static(__dirname + '/public'));
 //app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(session({
+	secret: 'kkillyupkkillyupkkillyupson',
+	resave: false,
+	saveUninitialized: true
+}));
 app.engine('html', require('ejs').__express);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
+
 //페이지 연결
+app.get('/', function(req, res) {res.render('login');});
+app.get('/join', function(req, res) {res.render('join');});
 
-//메인
-app.get('/', function(req, res) {
-    res.render('main');
+//로그인
+app.post("/loginForm", function (req, res) {
+	var userId = req.body.userId;
+	var userPw = req.body.userPw;
+
+	if(userId === 'admin' && userPw === 'admin') {
+	    res.redirect('/loginSuccess');
+	} else {
+		res.redirect('/loginFail');
+	    res.send('login fail');
+	    setTimeout(function () {
+	        res.redirect('/login');
+	    }, 2000);
+
+	}
 });
+
 //회원가입
-app.get('/join', function(req, res) {
-    res.render('join');
-});
-
-//회원가입 정보 받기
 app.post('/joinForm', function(req, res) {
 	var userId = req.body.userId;
 	var userPw = req.body.userPw;
@@ -41,6 +58,10 @@ app.post('/joinForm', function(req, res) {
 	        type : String,
 	        unique : true,
 	        required : true
+	    },
+	    createdAt: {
+	        type: Date,
+	        default: Date.now
 	    }
 	});
 
