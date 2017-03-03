@@ -48,6 +48,9 @@ var userData = mongoose.Schema({
     user_nick : {type : String, unique : true, required : true},
     created_at : {type : Date, default : Date.now}
 });
+userData.methods.validPassword = function(password) {
+    return this.user_pw == password;
+};
 var User = mongoose.model('userData',userData);
 app.post('/joinForm', function(req, res) {
     var user = new User({
@@ -56,25 +59,13 @@ app.post('/joinForm', function(req, res) {
     	user_nick : req.body.userNick
    	});
     user.save(function(err,silence) {
-        if(err) {
+        if (err) {
         	res.send('<script>alert("사용 중인 닉네임 또는 아이디 입니다.");location.href="/join";</script>');
         	return console.error(err);
         }
         else res.send('<script>alert("가입 완료");location.href="/";</script>');
     });
 });
-
-//로그인 폼 처리
-// userData.methods.validPassword = function validPassword(password, cb) {
-// 	if(password === this.password) {
-// 		cb(null, true);
-// 	} else {
-// 		cb('error');
-// 	}
-// };
-userData.methods.validPassword = function(password) {
-    return this.user_pw == password;
-};
 passport.serializeUser(function (user, done) {
 	console.log('serialize');
     done(null, user);
@@ -86,32 +77,16 @@ passport.deserializeUser(function (user, done) {
 passport.use(new LocalStrategy(function (username, password, done) {
 	var Users = mongoose.model('userData',userData);
 	Users.findOne({ user_id : username }, function (err, user) {
-		console.log(err,'여기까지 err');
-		console.log(user,'여기까지 user');
-
-			console.log(11);
-		if(err) { 
+		if (err) { 
 			return done(err); 
-			console.log(1);
 		}
-		if(!user) {
-			console.log(2);
+		if (!user) {
 			return done(null, false, { message: '아이디가 없습니다.' });
 		}
-		if(!user.validPassword(password)) {
-			console.log(3);
+		if (!user.validPassword(password)) {
 			return done(null, false, { message: '비밀번호가 틀렸습니다.' });
 		}
 		return done(null, user);
-
-			console.log(22);
-
-		// console.log(user);
-  //   	if(!user) return done(null, false, { message: '존재하지 않는 아이디입니다' });
-  //     	return user.comparePassword(password, function (passError, isMatch) {
-	 //        if (isMatch) { return done(null, user);}
-  //       	return done(null, false, { message: '비밀번호가 틀렸습니다' });
-  //   	});
    	});
 }));
 app.post('/loginForm', passport.authenticate('local', {
@@ -125,7 +100,7 @@ app.post('/loginForm', passport.authenticate('local', {
 // 	user_pw: String
 // });
 // userSchema.methods.comparePassword = function comparePassword(password, cb) {
-// 	if(password === this.user_pw) {
+// 	if (password === this.user_pw) {
 // 		cb(null, true);
 // 	} else {
 // 		cb('error');
@@ -143,11 +118,11 @@ app.post('/loginForm', passport.authenticate('local', {
 // 		Users.findOne({'user_id' : username}, function (err, user) {
 // 			console.log(err,'여기까지 err');
 // 			console.log(user,'여기까지 user');
-// 			if(err) { return done(err); }
-// 			if(!user) {
+// 			if (err) { return done(err); }
+// 			if (!user) {
 // 				return done(null, false, { message: '아이디가 없습니다.' });
 // 			}
-// 			if(!user.validPassword(password)) {
+// 			if (!user.validPassword(password)) {
 // 				return done(null, false, { message: '비밀번호가 틀렸습니다.' });
 // 			}
 // 			return done(null, user);
