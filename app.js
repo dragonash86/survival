@@ -65,13 +65,16 @@ app.post('/joinForm', function(req, res) {
 });
 
 //로그인 폼 처리
-// userData.methods.comparePassword = function comparePassword(password, cb) {
+// userData.methods.validPassword = function validPassword(password, cb) {
 // 	if(password === this.password) {
 // 		cb(null, true);
 // 	} else {
 // 		cb('error');
 // 	}
 // };
+userData.methods.validPassword = function(password) {
+    return this.user_pw == password;
+};
 passport.serializeUser(function (user, done) {
 	console.log('serialize');
     done(null, user);
