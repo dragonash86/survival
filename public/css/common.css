@@ -17,7 +17,7 @@ label{cursor:pointer}
 /* common */
 h2{padding:30px 0}
 .blind{overflow:hidden;position:absolute;top:-9999px;left:-9999px;width:1px;height:1px;font-size:1px;height:1px}
-.btn{display:block;width:158px;height:40px;line-height:36px;font-size:16px;text-align:center;color:#1c2833;border:1px solid #1c2833;margin:30px auto}
+.btn{display:block;width:158px;height:40px;line-height:36px;font-size:16px;text-align:center;color:#1c2833;border:1px solid #1c2833;cursor:pointer;margin:30px auto}
 .btn:hover{color:#fff;background:#1c2833;text-decoration:none}
 .container{width:1160px;padding:50px 20px;margin:0 auto}
 @media (max-width:1200px) {
@@ -35,7 +35,6 @@ h2{padding:30px 0}
 	.join li label{width:100%;padding:13px 0}
 	.join li span{position:absolute;padding:0;margin-top:10px}
 }
-
 /* 로그인 */
 .login fieldset{width:280px;margin:0 auto}
 .login label{display:none}

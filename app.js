@@ -56,29 +56,30 @@ db.on("error",function (err) {
 app.listen(3000);
 console.log("Server running on port 3000");
 
-//회원가입
+//전역 스키마 생성
 var userData = mongoose.Schema({
     user_id : {type : String, unique : true, required : true},
     user_pw : {type : String, required : true},
     user_nick : {type : String, unique : true, required : true},
-    game_enter : {type : String},
+    game_id : {type : String},
     game_place : {type : String},
     created_at : {type : Date, default : Date.now}
 });
-//패스워드 비교 userData를 User에 담기 전에 이걸 써넣어야 로그인 시 사용가능한 듯
+//패스워드 비교 userData를 User에 담기 전에 이걸 써넣어야 로그인 사용가능
 userData.methods.validPassword = function(password) {
     return this.user_pw == password;
 };
 var User = mongoose.model('userData',userData);
+//회원가입
 app.post('/joinForm', function(req, res) {
     var user = new User({
     	user_id : req.body.userId,
     	user_pw : req.body.userPw,
     	user_nick : req.body.userNick,
-    	game_enter : "not",
-    	game_place : "start",
+    	game_id : "한번도 참가 안 함",
+    	game_place : ""
    	});
-    user.save(function(err,silence) {
+    user.save(function(err) {
         if (err) {
         	res.send('<script>alert("사용 중인 닉네임 또는 아이디 입니다.");location.href="/join";</script>');
         	return console.error(err);
@@ -86,6 +87,7 @@ app.post('/joinForm', function(req, res) {
         else res.send('<script>alert("가입 완료");location.href="/";</script>');
     });
 });
+//로그인
 passport.serializeUser(function(user, done) {
 	done(null, user);
 });
@@ -111,3 +113,17 @@ app.post('/loginForm', passport.authenticate('local', {
 	failureRedirect: '/login',
 	failureFlash: true
 }));
+//게임 참가
+app.post('/gameStart', function(req, res) {
+    var user = new User({
+    	game_id : "시작 지점",
+    	game_place : "안전 지대"
+   	});
+    user.findByIdAndUpdate(자기자신의 game_id필드와 game_place,위에서 설정한거로 변경 , function(err, user) {
+        if (err) {
+            return next(err);
+        }else{
+            res.json(user);
+        }
+    });
+});
