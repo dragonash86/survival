@@ -33,11 +33,13 @@ app.get('/login', function(req, res) {
 app.get('/join', function(req, res) {res.render('join');});
 app.get('/game_start', function(req, res) {res.render('game_start', {user:req.user});});
 
+
 //로그아웃
 app.get('/logout', function(req, res) {
-	console.log(req.session.passport.user._id);
 	//마지막 로그인 시간 기록
-	User.update({_id : req.session.passport.user._id}, {$set : {last_login : Date.now()}}, function(err) {
+	var dateUTC = new Date();
+	var dateKTC = dateUTC.setHours(dateUTC.getHours() + 9);
+	User.update({_id : req.session.passport.user._id}, {$set : {last_login : dateKTC}}, function(err) {
 		if (err) throw err;
 	});
 	req.logout();
@@ -71,7 +73,7 @@ var userData = mongoose.Schema({
     max_hp : {type : Number},
     hp : {type : Number},
     created_at : {type : Date, default : Date.now},
-    last_login : {type : Date, default : Date.now}
+    last_login : {type : Date}
 });
 //패스워드 비교 userData를 User에 담기 전에 이걸 써넣어야 로그인 사용가능
 userData.methods.validPassword = function(password) {
