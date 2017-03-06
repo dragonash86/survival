@@ -22,9 +22,7 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 //페이지 연결
-app.get('/', function(req, res) {
-	res.render('main', {user:req.user});
-});
+app.get('/', function(req, res) {res.render('main', {user:req.user});});
 app.get('/login', function(req, res) {
 	if (req.user) {
 		res.render('main');
@@ -33,9 +31,15 @@ app.get('/login', function(req, res) {
 	}
 });
 app.get('/join', function(req, res) {res.render('join');});
+app.get('/game_start', function(req, res) {res.render('game_start', {user:req.user});});
 
 //로그아웃
-app.get('/logout', function(req, res){
+app.get('/logout', function(req, res) {
+	console.log(req.session.passport.user._id);
+	//마지막 로그인 시간 기록
+	User.update({_id : req.session.passport.user._id}, {$set : {last_login : Date.now()}}, function(err) {
+		if (err) throw err;
+	});
 	req.logout();
 	req.session.save(function(){
 		res.redirect('/login');
@@ -61,9 +65,13 @@ var userData = mongoose.Schema({
     user_id : {type : String, unique : true, required : true},
     user_pw : {type : String, required : true},
     user_nick : {type : String, unique : true, required : true},
-    game_id : {type : String},
-    game_place : {type : String},
-    created_at : {type : Date, default : Date.now}
+    map : {type : String},
+    place : {type : String},
+    lv : {type : Number},
+    max_hp : {type : Number},
+    hp : {type : Number},
+    created_at : {type : Date, default : Date.now},
+    last_login : {type : Date, default : Date.now}
 });
 //패스워드 비교 userData를 User에 담기 전에 이걸 써넣어야 로그인 사용가능
 userData.methods.validPassword = function(password) {
@@ -76,8 +84,11 @@ app.post('/joinForm', function(req, res) {
     	user_id : req.body.userId,
     	user_pw : req.body.userPw,
     	user_nick : req.body.userNick,
-    	game_id : "한번도 참가 안 함",
-    	game_place : ""
+    	map : "한번도 참가 안 함",
+    	place : "",
+    	lv : 1,
+    	max_hp : 100,
+    	hp : 100
    	});
     user.save(function(err) {
         if (err) {
@@ -97,7 +108,7 @@ passport.deserializeUser(function(user, done) {
 passport.use(new LocalStrategy({passReqToCallback : true},function (req, username, password, done) {
 	User.findOne({ user_id : username }, function (err, user) {
 		if (err) {
-			return done(err); 
+			return done(err);
 		}
 		if (!user) {
 			return done(null, false, req.flash('message', '아이디가 없습니다.'));
@@ -116,8 +127,11 @@ app.post('/loginForm', passport.authenticate('local', {
 //게임 참가
 app.post('/gameStart', function(req, res) {
    	var start = "시작 지점";
-	User.update({_id : req.session.passport.user._id}, {$set : {game_id : start, game_place : '안전 지대'} }, function(err, tasks) {
+	User.update({_id : req.session.passport.user._id}, {$set : {map : start, place : '안전 지대'}}, function(err) {
 		if (err) throw err;
-		console.log("update");
+		else {
+			console.log("update");
+			res.redirect('/game_start');
+		}
 	});
 });

@@ -1,12 +1,16 @@
 <% include include/header.ejs %>
-	<div class="container main">
+	<div class="container game_start">
 	<% if (user) { %>
 		<div class="status">
-			<h2><%= user.user_nick %>님 안녕하세요.</h2> 
+			<h1><%= user.map %></h1>
+			<ul>
+				<li>현재 위치 : <%= user.place %></li>
+				<li>닉네임 : <%= user.user_nick %></li>
+				<li>레벨 : <%= user.lv %></li>
+				<li>체력 : <%= user.hp %>/<%= user.max_hp %></li>
+			</ul>
 			<a href="/logout" class="btn">로그아웃</a><br />
-			<form action="/gameStart" method="post">
-		    	<input type="submit" class="btn" value="참가하기" />
-			</form>
+			
 		</div>
 	<% } else { %>
 		<script>location.href = "/login";</script>
