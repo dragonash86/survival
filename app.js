@@ -115,15 +115,9 @@ app.post('/loginForm', passport.authenticate('local', {
 }));
 //게임 참가
 app.post('/gameStart', function(req, res) {
-    var user = new User({
-    	game_id : "시작 지점",
-    	game_place : "안전 지대"
-   	});
-    user.findByIdAndUpdate(자기자신의 game_id필드와 game_place,위에서 설정한거로 변경 , function(err, user) {
-        if (err) {
-            return next(err);
-        }else{
-            res.json(user);
-        }
-    });
+   	var start = "시작 지점";
+	User.update({_id : req.session.passport.user._id}, {$set : {game_id : start, game_place : '안전 지대'} }, function(err, tasks) {
+		if (err) throw err;
+		console.log("update");
+	});
 });
