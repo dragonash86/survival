@@ -61,6 +61,8 @@ var userData = mongoose.Schema({
     user_id : {type : String, unique : true, required : true},
     user_pw : {type : String, required : true},
     user_nick : {type : String, unique : true, required : true},
+    game_enter : {type : String},
+    game_place : {type : String},
     created_at : {type : Date, default : Date.now}
 });
 //패스워드 비교 userData를 User에 담기 전에 이걸 써넣어야 로그인 시 사용가능한 듯
@@ -72,7 +74,9 @@ app.post('/joinForm', function(req, res) {
     var user = new User({
     	user_id : req.body.userId,
     	user_pw : req.body.userPw,
-    	user_nick : req.body.userNick
+    	user_nick : req.body.userNick,
+    	game_enter : "not",
+    	game_place : "start",
    	});
     user.save(function(err,silence) {
         if (err) {
