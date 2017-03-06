@@ -23,23 +23,13 @@ app.set('view engine', 'ejs');
 
 //페이지 연결
 app.get('/', function(req, res) {res.render('main', {user:req.user});});
-app.get('/login', function(req, res) {
-	if (req.user) {
-		res.render('main');
-	} else {
-		res.render('login');
-	}
-});
-app.get('/join', function(req, res) {res.render('join');});
-app.get('/game_start', function(req, res) {res.render('game_start', {user:req.user});});
-
 
 //로그아웃
 app.get('/logout', function(req, res) {
-	//마지막 로그인 시간 기록
+	//마지막 로그아웃 시간 기록
 	var dateUTC = new Date();
 	var dateKTC = dateUTC.setHours(dateUTC.getHours() + 9);
-	User.update({_id : req.session.passport.user._id}, {$set : {last_login : dateKTC}}, function(err) {
+	User.update({_id : req.session.passport.user._id}, {$set : {last_logout : dateKTC}}, function(err) {
 		if (err) throw err;
 	});
 	req.logout();
@@ -47,6 +37,8 @@ app.get('/logout', function(req, res) {
 		res.redirect('/login');
 	});
 });
+
+
 
 //DB 커넥트
 mongoose.connect("mongodb://yong.netb.co.kr:443/survival");
@@ -73,7 +65,7 @@ var userData = mongoose.Schema({
     max_hp : {type : Number},
     hp : {type : Number},
     created_at : {type : Date, default : Date.now},
-    last_login : {type : Date}
+    last_logout : {type : Date}
 });
 //패스워드 비교 userData를 User에 담기 전에 이걸 써넣어야 로그인 사용가능
 userData.methods.validPassword = function(password) {
@@ -100,6 +92,7 @@ app.post('/joinForm', function(req, res) {
         else res.send('<script>alert("가입 완료");location.href="/";</script>');
     });
 });
+app.get('/join', function(req, res) {res.render('join');});
 //로그인
 passport.serializeUser(function(user, done) {
 	done(null, user);
@@ -126,14 +119,19 @@ app.post('/loginForm', passport.authenticate('local', {
 	failureRedirect: '/login',
 	failureFlash: true
 }));
+app.get('/login', function(req, res) {
+	if (req.user) {
+		res.render('main');
+	} else {
+		res.render('login');
+	}
+});
 //게임 참가
 app.post('/gameStart', function(req, res) {
    	var start = "시작 지점";
 	User.update({_id : req.session.passport.user._id}, {$set : {map : start, place : '안전 지대'}}, function(err) {
 		if (err) throw err;
-		else {
-			console.log("update");
-			res.redirect('/game_start');
-		}
 	});
+	res.redirect('/gameStart');
 });
+app.get('/gameStart', function(req, res) {res.render('game_start', {user:req.user});});

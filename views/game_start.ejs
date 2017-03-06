@@ -7,10 +7,18 @@
 				<li>현재 위치 : <%= user.place %></li>
 				<li>닉네임 : <%= user.user_nick %></li>
 				<li>레벨 : <%= user.lv %></li>
-				<li>체력 : <%= user.hp %>/<%= user.max_hp %></li>
+				<li>생명력 : <%= user.hp %>/<%= user.max_hp %></li>
+				<li>파워 : <%= user.power %>/<%= user.max_power %></li>
 			</ul>
 			<a href="/logout" class="btn">로그아웃</a><br />
-			
+			<h2>이동하기</h2>
+			<ul>
+				<li><a href="#n">안전지대</a></li>
+				<li><a href="#n">헤이븐</a></li>
+				<li><a href="#n">오금</a></li>
+				<li><a href="#n">분당</a></li>
+				<li><a href="#n">을지로</a></li>
+			</ul>
 		</div>
 	<% } else { %>
 		<script>location.href = "/login";</script>
