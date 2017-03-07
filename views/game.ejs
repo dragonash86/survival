@@ -2,6 +2,7 @@
 	<div class="container game">
 	<% if (user) { %>
 		<div class="status">
+			<a href="/logout" class="btn">로그아웃</a>
 			<h1><%= user.map %></h1>
 			<ul>
 				<li>현재 위치 : <%= user.place %></li>
@@ -10,15 +11,17 @@
 				<li>생명력 : <%= user.hp %>/<%= user.max_hp %></li>
 				<li>파워 : <span class="pw"><%= user.pw %></span>/<%= user.max_pw %></li>
 			</ul>
-			<a href="/logout" class="btn">로그아웃</a><br />
 			<h2>이동하기</h2>
-			<ul class="place">
-				<li><a href="#n">안전지대</a></li>
-				<li><a href="#n">헤이븐</a></li>
-				<li><a href="#n">오금</a></li>
-				<li><a href="#n">분당</a></li>
-				<li><a href="#n">을지로</a></li>
-			</ul>
+			<form action="/moveForm" method="post">
+				<ul class="place">
+					<li><input type="button" readonly="readonly" value="안전 지대" /></li>
+					<li><input type="button" readonly="readonly" value="헤이븐" /></li>
+					<li><input type="button" readonly="readonly" value="오금" /></li>
+					<li><input type="button" readonly="readonly" value="분당" /></li>
+					<li><input type="button" readonly="readonly" value="을지로" /></li>
+				</ul>
+				<input type="hidden" name="moveValue" id="hidden" value="" />
+			</form>
 		</div>
 	<% } else { %>
 		<script>location.href = "/login";</script>
@@ -26,12 +29,10 @@
     </div>
     <script>
     	$(function() {
-			$(".place a").click(function(e) {
-				e.preventDefault();
-				$.post("/game", null, function(data) {
-					console.log(data.currentPw);
-					$(".pw").text(data.currentPw);
-				}, 'json');
+			$(".place input").click(function() {
+				console.log($("form input[name='hidden']"));
+				$("form #hidden").val($(this).context.value);
+    			$("form").submit();
 			});
 		});
 	</script>

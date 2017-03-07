@@ -22,7 +22,9 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 //페이지 연결
-app.get('/', function(req, res) {res.render('main', {user:req.user});});
+app.get('/', function(req, res) {
+	res.render('main', {user:req.user});
+});
 
 //로그아웃
 app.get('/logout', function(req, res) {
@@ -37,9 +39,6 @@ app.get('/logout', function(req, res) {
 		res.redirect('/login');
 	});
 });
-
-
-
 //DB 커넥트
 mongoose.connect("mongodb://yong.netb.co.kr:443/survival");
 var db = mongoose.connection;
@@ -49,7 +48,6 @@ db.once("open",function () {
 db.on("error",function (err) {
 	console.log("DB ERROR :", err);
 });
-
 //서버 시작
 app.listen(3000);
 console.log("Server running on port 3000");
@@ -96,7 +94,9 @@ app.post('/joinForm', function(req, res) {
         else res.send('<script>alert("가입 완료");location.href="/";</script>');
     });
 });
-app.get('/join', function(req, res) {res.render('join');});
+app.get('/join', function(req, res) {
+	res.render('join');
+});
 //로그인
 passport.serializeUser(function(user, done) {
 	done(null, user);
@@ -138,13 +138,22 @@ app.post('/joinGame', function(req, res) {
 	});
 	res.redirect('/game');
 });
-app.get('/game', function(req, res) {res.render('game', {user:req.user});});
-//이동 AJAX
-app.post('/game', function(req, res) {
-	var currentPw = req.session.passport.user.pw - 1;
-	var currentPlace = "임시";
-	User.update({_id : req.session.passport.user._id}, {$set : {pw : currentPw, place : currentPlace}}, function(err) {
-		if (err) throw err;
-	});
-	res.send({currentPw : currentPw});
+app.get('/game', function(req, res) {
+	//var id = User.findOne({_id:req.session.passport.user._id})._conditions._id;
+	res.render('game', {user:req.user});
+});
+//이동
+app.post('/moveForm', function(req, res) {
+	var currentPlace = req.body.moveValue;
+	if (req.session.passport.user.pw > 0) {
+		User.update({_id : req.session.passport.user._id}, {$inc : {pw : - 1}, $set : {place : currentPlace}}, function(err) {
+			if (err) throw err;
+		});
+		res.send(req.session.passport.user.pw);
+		res.redirect('/game');
+	} else {
+		res.send('<script>alert("파워가 부족합니다.");location.href="/game";</script>');	
+	}
+	
+	//res.send(currentPw);
 });
