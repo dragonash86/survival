@@ -64,6 +64,8 @@ var userData = mongoose.Schema({
     lv : {type : Number},
     max_hp : {type : Number},
     hp : {type : Number},
+    max_pw : {type : Number},
+    pw : {type : Number},
     created_at : {type : Date, default : Date.now},
     last_logout : {type : Date}
 });
@@ -82,7 +84,9 @@ app.post('/joinForm', function(req, res) {
     	place : "",
     	lv : 1,
     	max_hp : 100,
-    	hp : 100
+    	hp : 100,
+    	max_pw : 25,
+    	pw : 25
    	});
     user.save(function(err) {
         if (err) {
@@ -127,11 +131,20 @@ app.get('/login', function(req, res) {
 	}
 });
 //게임 참가
-app.post('/gameStart', function(req, res) {
+app.post('/joinGame', function(req, res) {
    	var start = "시작 지점";
 	User.update({_id : req.session.passport.user._id}, {$set : {map : start, place : '안전 지대'}}, function(err) {
 		if (err) throw err;
 	});
-	res.redirect('/gameStart');
+	res.redirect('/game');
 });
-app.get('/gameStart', function(req, res) {res.render('game_start', {user:req.user});});
+app.get('/game', function(req, res) {res.render('game', {user:req.user});});
+//이동 AJAX
+app.post('/game', function(req, res) {
+	var currentPw = req.session.passport.user.pw - 1;
+	var currentPlace = "임시";
+	User.update({_id : req.session.passport.user._id}, {$set : {pw : currentPw, place : currentPlace}}, function(err) {
+		if (err) throw err;
+	});
+	res.send({currentPw : currentPw});
+});
