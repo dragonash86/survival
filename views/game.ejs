@@ -30,7 +30,6 @@
     <script>
     	$(function() {
 			$(".place input").click(function() {
-				console.log($("form input[name='hidden']"));
 				$("form #hidden").val($(this).context.value);
     			$("form").submit();
 			});

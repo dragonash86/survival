@@ -131,7 +131,7 @@ app.get('/login', function(req, res) {
 	}
 });
 //게임 참가
-app.post('/joinGame', function(req, res) {
+app.post('/joinGameForm', function(req, res) {
    	var start = "시작 지점";
 	User.update({_id : req.session.passport.user._id}, {$set : {map : start, place : '안전 지대'}}, function(err) {
 		if (err) throw err;
@@ -149,11 +149,9 @@ app.post('/moveForm', function(req, res) {
 		User.update({_id : req.session.passport.user._id}, {$inc : {pw : - 1}, $set : {place : currentPlace}}, function(err) {
 			if (err) throw err;
 		});
-		res.send(req.session.passport.user.pw);
+		//res.send(req.session.passport.user.pw);
 		res.redirect('/game');
 	} else {
 		res.send('<script>alert("파워가 부족합니다.");location.href="/game";</script>');	
 	}
-	
-	//res.send(currentPw);
 });
