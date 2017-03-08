@@ -155,6 +155,10 @@ app.get('/game', function(req, res) {
 	res.render('game', {user:req.user});
 });
 //이동
+Map.find({place : '오금'}, {_id: 0 , user : 1}, function(err, docs) {
+	console.log(docs);
+});
+
 app.post('/moveForm', function(req, res) {
 	var currentPlace = req.body.moveValue;
 	if (req.session.passport.user.pw > 0) {
@@ -169,7 +173,6 @@ app.post('/moveForm', function(req, res) {
 		Map.update({place : currentPlace}, {$addToSet : {user : req.session.passport.user.user_nick}}, function(err) {
 			if (err) throw err;
 		});
-		
 		//res.send(req.session.passport.user.pw);
 		res.redirect('/game');
 	} else {
