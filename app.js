@@ -71,7 +71,15 @@ var userData = mongoose.Schema({
 userData.methods.validPassword = function(password) {
     return this.user_pw == password;
 };
-var User = mongoose.model('userData',userData);
+var User = mongoose.model('userData', userData);
+var mapData = mongoose.Schema({
+    map : {type : String},
+    place : {type : String},
+    user : [String],
+    item : [String],
+    death : [String]
+});
+var Map = mongoose.model('mapData', mapData);
 //회원가입
 app.post('/joinForm', function(req, res) {
     var user = new User({
@@ -132,8 +140,12 @@ app.get('/login', function(req, res) {
 });
 //게임 참가
 app.post('/joinGameForm', function(req, res) {
-   	var start = "시작 지점";
-	User.update({_id : req.session.passport.user._id}, {$set : {map : start, place : '안전 지대'}}, function(err) {
+   	var startMap = "시작 지점";
+   	var startPlace = "안전 지대";
+	User.update({_id : req.session.passport.user._id}, {$set : {map : startMap, place : startPlace}}, function(err) {
+		if (err) throw err;
+	});
+	Map.update({place : startPlace}, {$addToSet : {user : req.session.passport.user.user_nick}}, function(err) {
 		if (err) throw err;
 	});
 	res.redirect('/game');
@@ -149,9 +161,18 @@ app.post('/moveForm', function(req, res) {
 		User.update({_id : req.session.passport.user._id}, {$inc : {pw : - 1}, $set : {place : currentPlace}}, function(err) {
 			if (err) throw err;
 		});
+		//이동 시 유저의 원래 위치를 없앰
+		Map.update({user : req.session.passport.user.user_nick}, {$pull : {user : req.session.passport.user.user_nick}}, function(err) {
+			if (err) throw err;
+		});
+		//유저의 새로운 위치를 등록
+		Map.update({place : currentPlace}, {$addToSet : {user : req.session.passport.user.user_nick}}, function(err) {
+			if (err) throw err;
+		});
+		
 		//res.send(req.session.passport.user.pw);
 		res.redirect('/game');
 	} else {
-		res.send('<script>alert("파워가 부족합니다.");location.href="/game";</script>');	
+		res.send('<script>alert("파워가 부족합니다.");location.href="/game";</script>');
 	}
 });
