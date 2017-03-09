@@ -9,7 +9,8 @@
 				<li>닉네임 : <%= user_nick %></li>
 				<li>레벨 : <%= lv %></li>
 				<li>생명력 : <%= hp %>/<%= max_hp %></li>
-				<li>파워 : <span class="pw"><%= pw %></span>/<%= max_pw %></li>
+				<li>파워 : <%= pw %>/<%= max_pw %></li>
+				<li>경험치 : <%= exp %>/<%= max_exp %></li>
 			</ul>
 			<h2>이동하기</h2>
 			<form action="/moveForm" method="post">
