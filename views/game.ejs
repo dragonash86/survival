@@ -3,13 +3,13 @@
 	<% if (user) { %>
 		<div class="status">
 			<a href="/logout" class="btn">로그아웃</a>
-			<h1><%= user.map %></h1>
+			<h1><%= map %></h1>
 			<ul>
-				<li>현재 위치 : <%= user.place %></li>
-				<li>닉네임 : <%= user.user_nick %></li>
-				<li>레벨 : <%= user.lv %></li>
-				<li>생명력 : <%= user.hp %>/<%= user.max_hp %></li>
-				<li>파워 : <span class="pw"><%= user.pw %></span>/<%= user.max_pw %></li>
+				<li>현재 위치 : <%= place %></li>
+				<li>닉네임 : <%= user_nick %></li>
+				<li>레벨 : <%= lv %></li>
+				<li>생명력 : <%= hp %>/<%= max_hp %></li>
+				<li>파워 : <span class="pw"><%= pw %></span>/<%= max_pw %></li>
 			</ul>
 			<h2>이동하기</h2>
 			<form action="/moveForm" method="post">

@@ -148,17 +148,23 @@ app.post('/joinGameForm', function(req, res) {
 	Map.update({place : startPlace}, {$addToSet : {user : req.session.passport.user.user_nick}}, function(err) {
 		if (err) throw err;
 	});
-	res.redirect('/game');
+	User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
+		var user_nick = userValue[0].user_nick;
+		var map = userValue[0].map;
+		var place = userValue[0].place;
+		var lv = userValue[0].lv;
+		var max_hp = userValue[0].max_hp;
+		var hp = userValue[0].hp;
+		var max_pw = userValue[0].max_pw;
+		var pw = userValue[0].pw;
+		console.log(userValue);
+		res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw);
+	});
 });
 app.get('/game', function(req, res) {
-	//var id = User.findOne({_id:req.session.passport.user._id})._conditions._id;
-	res.render('game', {user:req.user});
+	res.render('game', {user:req.user, user_nick:req.query.user_nick, map:req.query.map, place:req.query.place, lv:req.query.lv, max_hp:req.query.max_hp, hp:req.query.hp, max_pw:req.query.max_pw, pw:req.query.pw});
 });
 //이동
-Map.find({place : '오금'}, {_id: 0 , user : 1}, function(err, docs) {
-	console.log(docs);
-});
-
 app.post('/moveForm', function(req, res) {
 	var currentPlace = req.body.moveValue;
 	if (req.session.passport.user.pw > 0) {
@@ -173,8 +179,20 @@ app.post('/moveForm', function(req, res) {
 		Map.update({place : currentPlace}, {$addToSet : {user : req.session.passport.user.user_nick}}, function(err) {
 			if (err) throw err;
 		});
-		//res.send(req.session.passport.user.pw);
-		res.redirect('/game');
+		User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
+			var user_nick = userValue[0].user_nick;
+			var map = userValue[0].map;
+			var place = userValue[0].place;
+			var lv = userValue[0].lv;
+			var max_hp = userValue[0].max_hp;
+			var hp = userValue[0].hp;
+			var max_pw = userValue[0].max_pw;
+			var pw = userValue[0].pw;
+			res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw);
+		});
+		// Map.find({place : req.body.moveValue}, {_id : 0, user : 1}, function(err, value) {
+		// 	res.redirect('/game/?value='+value[0].user[0]);
+		// });
 	} else {
 		res.send('<script>alert("파워가 부족합니다.");location.href="/game";</script>');
 	}
