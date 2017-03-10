@@ -184,7 +184,56 @@ app.post('/moveForm', function(req, res) {
 		Map.update({place : currentPlace}, {$push : {user : req.session.passport.user.user_nick}}, function() {
 			//랜덤한 아이템
 			Map.find({place : currentPlace}, {_id : 0, item : 1 }, function(err, itemValue) {
-				var randomItem = itemValue[0].item[Math.floor(Math.random() * itemValue[0].item.length -1)];
+				// Map.update({place : currentPlace, item : Math.floor(Math.random() * itemValue[0].item.length)}, {'item.$' : ''}, function(err) {
+
+				// });
+				// var randomItem = itemValue[0].item[Math.floor(Math.random() * itemValue[0].item.length -1)];
+				
+				// Map.update({place : currentPlace}, {$pull : {item : randomItem}}, function(err) {	
+
+				// });
+
+
+
+
+
+
+
+				//var randomItem = itemValue[0].item[Math.floor(Math.random() * itemValue[0].item.length -1)];
+				//console.log(randNum); //결과 = 0 or 1 (왜냐면 필드가 2개라서)
+				//console.log("'item."+randNum+"'");  // 결과 = 'item.0' or 'item.1'
+				//console.log('"item.'+randNum+'"');	// 결과 = "item.0" or "item.1"
+				// var a = "'item."+randNum+"'";
+				// var b = '"item.'+randNum+'"';
+				// console.log(a);
+				// Map.update({place : currentPlace}, {$unset : {b : 1}}, function(err, result) {
+				// 	console.log(result);
+				// 	//console.log("'item."+randNum+"'");  // 결과 = 'item.0' or 'item.1'
+				// 	//console.log('"item.'+randNum+'"');	// 결과 = "item.0" or "item.1"
+				// 	//저 unset에 다음에 있는 것이 'item.0' or item.1 로 나와야 하고 무조건 감싸 '' 로 
+					
+				// });
+
+				// Map.update({place : currentPlace}, {$unset : {"item."+randNum : 1}}, function(err, result) {
+				// 	console.log(result);
+				// 	//console.log("'item."+randNum+"'");  // 결과 = 'item.0' or 'item.1'
+				// 	//console.log('"item.'+randNum+'"');	// 결과 = "item.0" or "item.1"
+				// 	//저 unset에 다음에 있는 것이 'item.0' or item.1 로 나와야 하고 무조건 감싸 '' 로 
+					
+				// });
+				var randNum = Math.floor(Math.random() * itemValue[0].item.length);
+				var query = {$unset:{}};
+				query.$unset["item."+randNum] = 1;
+				Map.update({place : currentPlace}, query, function(err, result) {
+					
+				});
+
+
+
+				// console.log(itemValue, randomItem);
+				// Map.update({place : currentPlace}, {$pull : {item : randomItem}}, {multi: false}, function(err) {
+
+				// });
 			});
 		});
 		//유저 데이터 갱신에 필요
@@ -206,6 +255,6 @@ app.post('/moveForm', function(req, res) {
 	}
 });
 //DB셋팅용 임시소스
-// Map.update({_id : "58bf9e30f96899a76f5cf899"}, {$push : {item : '칼'}}, function(err) {
+// Map.update({_id : "58bf9e30f96899a76f5cf899"}, {$push : {item : '마음'}}, function(err) {
 // 	if (err) throw err;
 // });
