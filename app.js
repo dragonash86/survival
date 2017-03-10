@@ -66,6 +66,7 @@ var userData = mongoose.Schema({
     pw : {type : Number},
     max_exp : {type : Number},
     exp : {type : Number},
+    item : [String],
     created_at : {type : Date, default : Date.now},
     last_logout : {type : Date}
 });
@@ -96,7 +97,8 @@ app.post('/joinForm', function(req, res) {
     	max_pw : 25,
     	pw : 25,
     	max_exp : 10,
-    	exp : 0
+    	exp : 0,
+    	item : []
    	});
     user.save(function(err) {
         if (err) {
@@ -163,11 +165,12 @@ app.post('/joinGameForm', function(req, res) {
 		var pw = userValue[0].pw;
 		var max_exp = userValue[0].max_exp;
 		var exp = userValue[0].exp;
-		res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp);
+		var item = userValue[0].item;
+		res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item);
 	});
 });
 app.get('/game', function(req, res) {
-	res.render('game', {user:req.user, user_nick:req.query.user_nick, map:req.query.map, place:req.query.place, lv:req.query.lv, max_hp:req.query.max_hp, hp:req.query.hp, max_pw:req.query.max_pw, pw:req.query.pw, max_exp:req.query.max_exp, exp:req.query.exp});
+	res.render('game', {user:req.user, user_nick:req.query.user_nick, map:req.query.map, place:req.query.place, lv:req.query.lv, max_hp:req.query.max_hp, hp:req.query.hp, max_pw:req.query.max_pw, pw:req.query.pw, max_exp:req.query.max_exp, exp:req.query.exp, item:req.query.item});
 });
 //이동
 app.post('/moveForm', function(req, res) {
@@ -184,56 +187,20 @@ app.post('/moveForm', function(req, res) {
 		Map.update({place : currentPlace}, {$push : {user : req.session.passport.user.user_nick}}, function() {
 			//랜덤한 아이템
 			Map.find({place : currentPlace}, {_id : 0, item : 1 }, function(err, itemValue) {
-				// Map.update({place : currentPlace, item : Math.floor(Math.random() * itemValue[0].item.length)}, {'item.$' : ''}, function(err) {
-
-				// });
-				// var randomItem = itemValue[0].item[Math.floor(Math.random() * itemValue[0].item.length -1)];
-				
-				// Map.update({place : currentPlace}, {$pull : {item : randomItem}}, function(err) {	
-
-				// });
-
-
-
-
-
-
-
-				//var randomItem = itemValue[0].item[Math.floor(Math.random() * itemValue[0].item.length -1)];
-				//console.log(randNum); //결과 = 0 or 1 (왜냐면 필드가 2개라서)
-				//console.log("'item."+randNum+"'");  // 결과 = 'item.0' or 'item.1'
-				//console.log('"item.'+randNum+'"');	// 결과 = "item.0" or "item.1"
-				// var a = "'item."+randNum+"'";
-				// var b = '"item.'+randNum+'"';
-				// console.log(a);
-				// Map.update({place : currentPlace}, {$unset : {b : 1}}, function(err, result) {
-				// 	console.log(result);
-				// 	//console.log("'item."+randNum+"'");  // 결과 = 'item.0' or 'item.1'
-				// 	//console.log('"item.'+randNum+'"');	// 결과 = "item.0" or "item.1"
-				// 	//저 unset에 다음에 있는 것이 'item.0' or item.1 로 나와야 하고 무조건 감싸 '' 로 
-					
-				// });
-
-				// Map.update({place : currentPlace}, {$unset : {"item."+randNum : 1}}, function(err, result) {
-				// 	console.log(result);
-				// 	//console.log("'item."+randNum+"'");  // 결과 = 'item.0' or 'item.1'
-				// 	//console.log('"item.'+randNum+'"');	// 결과 = "item.0" or "item.1"
-				// 	//저 unset에 다음에 있는 것이 'item.0' or item.1 로 나와야 하고 무조건 감싸 '' 로 
-					
-				// });
 				var randNum = Math.floor(Math.random() * itemValue[0].item.length);
-				var query = {$unset:{}};
+				var randomItem = itemValue[0].item[randNum];
+				console.log(randomItem);
+				var query = {$unset : {}};
 				query.$unset["item."+randNum] = 1;
-				Map.update({place : currentPlace}, query, function(err, result) {
-					
+				Map.update({place : currentPlace}, query, function(err) {
+					Map.update({place : currentPlace}, {$pull : {item : null}}, function(err) {
+						User.update({_id : req.session.passport.user._id}, {$push : {item : randomItem}}, function(err) {
+							User.update({_id : req.session.passport.user._id}, {$pull : {item : null}}, function(err) {
+								
+							});
+						});
+					});
 				});
-
-
-
-				// console.log(itemValue, randomItem);
-				// Map.update({place : currentPlace}, {$pull : {item : randomItem}}, {multi: false}, function(err) {
-
-				// });
 			});
 		});
 		//유저 데이터 갱신에 필요
@@ -248,7 +215,8 @@ app.post('/moveForm', function(req, res) {
 			var pw = userValue[0].pw;
 			var max_exp = userValue[0].max_exp;
 			var exp = userValue[0].exp;
-			res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp);
+			var item = userValue[0].item;
+			res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item);
 		});
 	} else {
 		res.send('<script>alert("파워가 부족합니다.");location.href="/game";</script>');
