@@ -205,35 +205,52 @@ app.post('/moveForm', function(req, res) {
 					});
 				});
 			});
+			//유저 데이터 갱신에 필요
+			User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
+				var user_nick = userValue[0].user_nick;
+				var map = userValue[0].map;
+				var place = userValue[0].place;
+				var lv = userValue[0].lv;
+				var max_hp = userValue[0].max_hp;
+				var hp = userValue[0].hp;
+				var max_pw = userValue[0].max_pw;
+				var pw = userValue[0].pw;
+				var max_exp = userValue[0].max_exp;
+				var exp = userValue[0].exp;
+				var item = userValue[0].item;
+				res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item);
+			});
 		} else if (action === 2) {
 			//조우
 			Map.find({place : currentPlace}, {_id : 0, user : 1 }, function(err, userValue) {
 				var randNum = Math.floor(Math.random() * userValue[0].user.length);
 				var meet = userValue[0].user[randNum];
 				if (meet === req.session.passport.user.user_nick) {
+					console.log(1);
 					return;
 				} else {
-					console.log(1);
+					//res.redirect('/game/?meet='+meet);
+					console.log(2);
 					return;
 				}
 			});
+
+			//유저 데이터 갱신에 필요
+			User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
+				var user_nick = userValue[0].user_nick;
+				var map = userValue[0].map;
+				var place = userValue[0].place;
+				var lv = userValue[0].lv;
+				var max_hp = userValue[0].max_hp;
+				var hp = userValue[0].hp;
+				var max_pw = userValue[0].max_pw;
+				var pw = userValue[0].pw;
+				var max_exp = userValue[0].max_exp;
+				var exp = userValue[0].exp;
+				var item = userValue[0].item;
+				res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item);
+			});
 		}
-		//유저 데이터 갱신에 필요
-		User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
-			var user_nick = userValue[0].user_nick;
-			var map = userValue[0].map;
-			var place = userValue[0].place;
-			var lv = userValue[0].lv;
-			var max_hp = userValue[0].max_hp;
-			var hp = userValue[0].hp;
-			var max_pw = userValue[0].max_pw;
-			var pw = userValue[0].pw;
-			var max_exp = userValue[0].max_exp;
-			var exp = userValue[0].exp;
-			var item = userValue[0].item;
-			res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item);
-			console.log(2);
-		});
 	} else {
 		res.send('<script>alert("파워가 부족합니다.");location.href="/game";</script>');
 	}
