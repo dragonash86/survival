@@ -78,7 +78,7 @@ var User = mongoose.model('userData', userData);
 var mapData = mongoose.Schema({
     map : {type : String},
     place : {type : String},
-    user : {type : String},
+    user : [String],
     item : [String],
     death : [String]
 });
@@ -185,11 +185,14 @@ app.post('/moveForm', function(req, res) {
 		});
 		//유저의 새로운 위치를 등록
 		Map.update({place : currentPlace}, {$push : {user : req.session.passport.user.user_nick}}, function() {
-			//랜덤한 아이템
+			
+		});
+		var action = Math.floor(Math.random() * 2) + 1;
+		if (action === 1) {
+			//랜덤한 아이템 획득
 			Map.find({place : currentPlace}, {_id : 0, item : 1 }, function(err, itemValue) {
 				var randNum = Math.floor(Math.random() * itemValue[0].item.length);
 				var randomItem = itemValue[0].item[randNum];
-				console.log(randomItem);
 				var query = {$unset : {}};
 				query.$unset["item."+randNum] = 1;
 				Map.update({place : currentPlace}, query, function(err) {
@@ -202,7 +205,19 @@ app.post('/moveForm', function(req, res) {
 					});
 				});
 			});
-		});
+		} else if (action === 2) {
+			//조우
+			Map.find({place : currentPlace}, {_id : 0, user : 1 }, function(err, userValue) {
+				var randNum = Math.floor(Math.random() * userValue[0].user.length);
+				var meet = userValue[0].user[randNum];
+				if (meet === req.session.passport.user.user_nick) {
+					return;
+				} else {
+					console.log(1);
+					return;
+				}
+			});
+		}
 		//유저 데이터 갱신에 필요
 		User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
 			var user_nick = userValue[0].user_nick;
@@ -217,6 +232,7 @@ app.post('/moveForm', function(req, res) {
 			var exp = userValue[0].exp;
 			var item = userValue[0].item;
 			res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item);
+			console.log(2);
 		});
 	} else {
 		res.send('<script>alert("파워가 부족합니다.");location.href="/game";</script>');
@@ -225,4 +241,17 @@ app.post('/moveForm', function(req, res) {
 //DB셋팅용 임시소스
 // Map.update({_id : "58bf9e30f96899a76f5cf899"}, {$push : {item : '마음'}}, function(err) {
 // 	if (err) throw err;
+// });
+//테스트용 임시소스
+// Map.find({place : '오금'}, {_id : 0, user : 1 }, function(err, userValue) {
+// 	var randNum = Math.floor(Math.random() * userValue[0].user.length);
+// 	//console.log("랜덤 넘버 : "+randNum);
+// 	console.log(userValue[0].user);
+// 	console.log(userValue[0].user[randNum]);
+// });
+// Map.find({place : '오금'}, {_id : 0, item : 1 }, function(err, itemValue) {
+// 	var randNum = Math.floor(Math.random() * itemValue[0].item.length);
+// 	//console.log("랜덤 넘버 : "+randNum);
+// 	console.log(itemValue[0].item);
+// 	console.log(itemValue[0].item.length);
 // });
