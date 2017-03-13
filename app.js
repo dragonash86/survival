@@ -68,6 +68,7 @@ var userData = mongoose.Schema({
     exp : {type : Number},
     item : [String],
     log : [String],
+    readLog : [String],
     match : {type : String},
     attack : {type : Number},
     created_at : {type : Date, default : Date.now},
@@ -104,7 +105,8 @@ app.post('/joinForm', function(req, res) {
     	attack : 1,
     	match : "",
     	item : [],
-    	log : []
+    	log : [],
+    	readLog : []
    	});
     user.save(function(err) {
         if (err) {
@@ -153,7 +155,9 @@ app.get('/login', function(req, res) {
 app.get('/game', function(req, res) {
 	if (req.user) {
 		User.find({_id : req.session.passport.user._id}, {_id : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
-			res.render('game', {user:req.user, userStat:userValue, msg:req.query.msg, lvUpMsg:req.query.lvUpMsg});
+			//로그
+			console.log(userValue[0].log);
+			res.render('game', {user:req.user, userStat:userValue});
 		});
 	} else {
 		res.render('login');
@@ -240,22 +244,16 @@ app.post('/attackForm', function(req, res) {
 			var attack = userValue[0].attack;
 			var expUp = 5;
 			var match = userValue[0].match;
-			var msg = match+"에게 데미지 : "+attack+"! 경험치 : "+expUp+" 상승";
-			//레벨업
-			if (userValue[0].exp >= userValue[0].max_exp) {
-				User.update({_id : req.session.passport.user._id}, {$inc : {hp : 10, max_hp : 10, max_exp : 10, attack : 2, lv : 1, pw : 10, max_pw : 5}, $set : {exp : 0}}, function(err) {
-				});
-				var lvUpMsg = "레벨업 했습니다! 최대 생명력이 10, 공격력이 2 최대 파워가 5 증가 했습니다. 생명력 10, 파워 10은 보너스";
-			} else {
-				var lvUpMsg = "";
-			}
-			User.update({user_nick : match}, {$inc : {hp : - attack}}, function(err) {
-				User.update({_id : req.session.passport.user._id}, {$inc : {exp : expUp}, $set : {match : null}}, function(err) {
-					//로그
-					User.update({user_nick : match}, {$push : {log : "l"+req.session.passport.user.user_nick+"에게 데미지 : "+attack}}, function(err) {
-
-					});
-					res.redirect('/game/?msg='+msg+'&lvUpMsg='+lvUpMsg);
+			var log = match+"에게 데미지 : "+attack+"! 경험치 : "+expUp+" 상승";
+			User.update({user_nick : match}, {$inc : {hp : - attack}, $push : {log : req.session.passport.user.user_nick+"에게 데미지 : "+attack}}, function(err) {
+				User.update({_id : req.session.passport.user._id}, {$inc : {exp : expUp}, $set : {match : null}, $push : {log : log}}, function(err) {
+					var lvUpMsg = "레벨업 했습니다! 최대 생명력이 10, 공격력이 2 최대 파워가 5 증가 했습니다. 생명력 10, 파워 10은 보너스";
+					//레벨업
+					if (userValue[0].exp >= userValue[0].max_exp) {
+						User.update({_id : req.session.passport.user._id}, {$inc : {hp : 10, max_hp : 10, max_exp : 10, attack : 2, lv : 1, pw : 10, max_pw : 5}, $set : {exp : 0}, $push : {log : lvUpMsg}}, function(err) {
+						});
+					}
+					res.redirect('/game');
 				});
 			});
 		});

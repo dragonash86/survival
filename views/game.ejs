@@ -34,10 +34,9 @@
 				</form>
 			</div>
 			<% } %>
-			<% if (msg) { %>
-			<div class="msg">
-				<h3><%= msg %></h3>
-				<h3><%= lvUpMsg %></h3>
+			<% if (userStat[0].log) { %>
+			<div class="log">
+				<h3><%= userStat[0].log %></h3>
 			</div>
 			<% } %>
 		</div>
