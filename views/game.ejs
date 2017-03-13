@@ -3,16 +3,16 @@
 	<% if (user) { %>
 		<div class="status">
 			<a href="/logout" class="btn">로그아웃</a>
-			<h1><%= map %></h1>
+			<h1><%= userStat[0].map %></h1>
 			<ul>
-				<li>현재 위치 : <%= place %></li>
-				<li>닉네임 : <%= user_nick %></li>
-				<li>레벨 : <%= lv %></li>
-				<li>생명력 : <%= hp %>/<%= max_hp %></li>
-				<li>공격력 : <%= attack %></li>
-				<li>파워 : <%= pw %>/<%= max_pw %></li>
-				<li>경험치 : <%= exp %>/<%= max_exp %></li>
-				<li>아이템 : <%= item %></li>
+				<li>현재 위치 : <%= userStat[0].place %></li>
+				<li>닉네임 : <%= userStat[0].user_nick %></li>
+				<li>레벨 : <%= userStat[0].lv %></li>
+				<li>생명력 : <%= userStat[0].hp %>/<%= userStat[0].max_hp %></li>
+				<li>공격력 : <%= userStat[0].attack %></li>
+				<li>파워 : <%= userStat[0].pw %>/<%= userStat[0].max_pw %></li>
+				<li>경험치 : <%= userStat[0].exp %>/<%= userStat[0].max_exp %></li>
+				<li>아이템 : <%= userStat[0].item %></li>
 			</ul>
 			<h2>이동하기</h2>
 			<form action="/moveForm" id="move" method="post">
@@ -24,14 +24,13 @@
 				<input type="hidden" name="moveValue" id="hidden" value="" />
 			</form>
 			
-			<% if (meet) { %>
+			<% if (userStat[0].match) { %>
 			<div class="meet">
-				<h3><%= meet %> 조우</h3>
+				<h3><%= userStat[0].match %> 조우</h3>
 				<form action="/attackForm" id="attack" method="post">
 					<ul class="action">
 						<li><input type="button" readonly="readonly" value="공격" /></li>
 					</ul>
-					<input type="hidden" name="attackValue" value="<%= meet %>" />
 				</form>
 			</div>
 			<% } %>

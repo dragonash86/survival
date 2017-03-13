@@ -2,7 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var session = require('express-session');
-var passport = require('passport')
+var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var flash = require('connect-flash');
 var app = express();
@@ -67,6 +67,8 @@ var userData = mongoose.Schema({
     max_exp : {type : Number},
     exp : {type : Number},
     item : [String],
+    log : [String],
+    match : {type : String},
     attack : {type : Number},
     created_at : {type : Date, default : Date.now},
     last_logout : {type : Date}
@@ -100,7 +102,9 @@ app.post('/joinForm', function(req, res) {
     	max_exp : 10,
     	exp : 0,
     	attack : 1,
-    	item : []
+    	match : "",
+    	item : [],
+    	log : []
    	});
     user.save(function(err) {
         if (err) {
@@ -146,164 +150,118 @@ app.get('/login', function(req, res) {
 		res.render('login');
 	}
 });
+app.get('/game', function(req, res) {
+	if (req.user) {
+		User.find({_id : req.session.passport.user._id}, {_id : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
+			res.render('game', {user:req.user, userStat:userValue, msg:req.query.msg, lvUpMsg:req.query.lvUpMsg});
+		});
+	} else {
+		res.render('login');
+	}
+});
 //게임 참가
 app.post('/joinGameForm', function(req, res) {
-   	var startMap = "시작 지점";
-   	var startPlace = "안전 지대";
-	User.update({_id : req.session.passport.user._id}, {$set : {map : startMap, place : startPlace}}, function(err) {
-		if (err) throw err;
-	});
-	Map.update({place : startPlace}, {$addToSet : {user : req.session.passport.user.user_nick}}, function(err) {
-		if (err) throw err;
-	});
-	User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
-		var user_nick = userValue[0].user_nick;
-		var map = userValue[0].map;
-		var place = userValue[0].place;
-		var lv = userValue[0].lv;
-		var max_hp = userValue[0].max_hp;
-		var hp = userValue[0].hp;
-		var max_pw = userValue[0].max_pw;
-		var pw = userValue[0].pw;
-		var max_exp = userValue[0].max_exp;
-		var exp = userValue[0].exp;
-		var item = userValue[0].item;
-		var attack = userValue[0].attack;
-		res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item+'&attack='+attack);
-	});
-});
-app.get('/game', function(req, res) {
-	res.render('game', {user:req.user, user_nick:req.query.user_nick, map:req.query.map, place:req.query.place, lv:req.query.lv, max_hp:req.query.max_hp, hp:req.query.hp, max_pw:req.query.max_pw, pw:req.query.pw, max_exp:req.query.max_exp, exp:req.query.exp, item:req.query.item, attack:req.query.attack, meet:req.query.meet, msg:req.query.msg, lvUpMsg:req.query.lvUpMsg});
+	if (req.user) {
+	   	var startMap = "시작 지점";
+	   	var startPlace = "안전 지대";
+		User.update({_id : req.session.passport.user._id}, {$set : {map : startMap, place : startPlace}}, function(err) {
+			if (err) throw err;
+		});
+		Map.update({place : startPlace}, {$addToSet : {user : req.session.passport.user.user_nick}}, function(err) {
+			if (err) throw err;
+		});
+		res.redirect('/game');
+	} else {
+		res.render('login');
+	}
 });
 //이동
 app.post('/moveForm', function(req, res) {
-	var currentPlace = req.body.moveValue;
-	if (req.session.passport.user.pw > 0) {
-		//파워 감소, 유저의 장소
-		User.update({_id : req.session.passport.user._id}, {$inc : {pw : - 1}, $set : {place : currentPlace}}, function(err) {
-			if (err) throw err;
-		});
-		//이동 시 유저의 원래 위치를 없앰
-		Map.update({user : req.session.passport.user.user_nick}, {$pull : {user : req.session.passport.user.user_nick}}, function(err) {
-			if (err) throw err;
-		});
-		//맵에 유저의 새로운 위치를 등록
-		Map.update({place : currentPlace}, {$push : {user : req.session.passport.user.user_nick}}, function(err) {
-			if (err) throw err;
-		});
-		var action = Math.floor(Math.random() * 2) + 1;
-		if (action === 1) {
-			//랜덤한 아이템 획득
-			Map.find({place : currentPlace}, {_id : 0, item : 1 }, function(err, itemValue) {
-				var randNum = Math.floor(Math.random() * itemValue[0].item.length);
-				var randomItem = itemValue[0].item[randNum];
-				var query = {$unset : {}};
-				query.$unset["item."+randNum] = 1;
-				Map.update({place : currentPlace}, query, function(err) {
-					Map.update({place : currentPlace}, {$pull : {item : null}}, function(err) {
-						User.update({_id : req.session.passport.user._id}, {$push : {item : randomItem}}, function(err) {
-							User.update({_id : req.session.passport.user._id}, {$pull : {item : null}}, function(err) {
-								//유저 데이터 갱신에 필요
-								User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
-									var user_nick = userValue[0].user_nick;
-									var map = userValue[0].map;
-									var place = userValue[0].place;
-									var lv = userValue[0].lv;
-									var max_hp = userValue[0].max_hp;
-									var hp = userValue[0].hp;
-									var max_pw = userValue[0].max_pw;
-									var pw = userValue[0].pw;
-									var max_exp = userValue[0].max_exp;
-									var exp = userValue[0].exp;
-									var item = userValue[0].item;
-									var attack = userValue[0].attack;
-									res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item+'&attack='+attack);
+	if (req.user) {
+		var currentPlace = req.body.moveValue;
+		if (req.session.passport.user.pw > 0) {
+			//파워 감소, 유저의 장소, 조우상대를 없앰
+			User.update({_id : req.session.passport.user._id}, {$inc : {pw : - 1}, $set : {place : currentPlace, match : null}}, function(err) {
+				if (err) throw err;
+			});
+			//이동 시 유저의 원래 위치 없앰
+			Map.update({user : req.session.passport.user.user_nick}, {$pull : {user : req.session.passport.user.user_nick}}, function(err) {
+				if (err) throw err;
+			});
+			//맵에 유저의 새로운 위치를 등록
+			Map.update({place : currentPlace}, {$push : {user : req.session.passport.user.user_nick}}, function(err) {
+				if (err) throw err;
+			});
+			var action = Math.floor(Math.random() * 2) + 1;
+			if (action === 1) {
+				//랜덤한 아이템 획득
+				Map.find({place : currentPlace}, {_id : 0, item : 1 }, function(err, itemValue) {
+					var randNum = Math.floor(Math.random() * itemValue[0].item.length);
+					var randomItem = itemValue[0].item[randNum];
+					var query = {$unset : {}};
+					query.$unset["item."+randNum] = 1;
+					Map.update({place : currentPlace}, query, function(err) {
+						Map.update({place : currentPlace}, {$pull : {item : null}}, function(err) {
+							User.update({_id : req.session.passport.user._id}, {$push : {item : randomItem}}, function(err) {
+								User.update({_id : req.session.passport.user._id}, {$pull : {item : null}}, function(err) {
+									res.redirect('/game');
+									return;
 								});
-								return;
 							});
 						});
 					});
 				});
-			});
-		} else if (action === 2) {
-			//조우
-			Map.find({place : currentPlace}, {_id : 0, user : 1 }, function(err, userValue) {
-				var randNum = Math.floor(Math.random() * userValue[0].user.length);
-				var meet = userValue[0].user[randNum];
-				if (meet === req.session.passport.user.user_nick) {
-					User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
-						var user_nick = userValue[0].user_nick;
-						var map = userValue[0].map;
-						var place = userValue[0].place;
-						var lv = userValue[0].lv;
-						var max_hp = userValue[0].max_hp;
-						var hp = userValue[0].hp;
-						var max_pw = userValue[0].max_pw;
-						var pw = userValue[0].pw;
-						var max_exp = userValue[0].max_exp;
-						var exp = userValue[0].exp;
-						var item = userValue[0].item;
-						var attack = userValue[0].attack;
-						res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item+'&attack='+attack);
-					});
-					return;
-				} else {
-					//유저 데이터 갱신에 필요
-					User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
-						var user_nick = userValue[0].user_nick;
-						var map = userValue[0].map;
-						var place = userValue[0].place;
-						var lv = userValue[0].lv;
-						var max_hp = userValue[0].max_hp;
-						var hp = userValue[0].hp;
-						var max_pw = userValue[0].max_pw;
-						var pw = userValue[0].pw;
-						var max_exp = userValue[0].max_exp;
-						var exp = userValue[0].exp;
-						var item = userValue[0].item;
-						var attack = userValue[0].attack;
-						res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item+'&attack='+attack+'&meet='+meet);
-					});
-					return;
-				}
-			});
+			} else if (action === 2) {
+				//조우
+				Map.find({place : currentPlace}, {_id : 0, user : 1 }, function(err, userValue) {
+					var randNum = Math.floor(Math.random() * userValue[0].user.length);
+					var match = userValue[0].user[randNum];
+					if (match === req.session.passport.user.user_nick) {
+						res.redirect('/game');
+						return;
+					} else {
+						User.update({_id : req.session.passport.user._id}, {$set : {match : match}}, function(err) {
+							res.redirect('/game');
+							return;
+						});
+					}
+				});
+			}
+		} else {
+			res.send('<script>alert("파워가 부족합니다.");location.href="/game";</script>');
 		}
 	} else {
-		//res.send('<script>alert("파워가 부족합니다.");location.href="/game";</script>');
+		res.render('login');
 	}
 });
 app.post('/attackForm', function(req, res) {
-	User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
-		var attack = userValue[0].attack;
-		var expUp = 3;
-		var msg = req.body.attackValue+"에게 데미지 : "+attack+"! 경험치 : "+expUp+" 상승";
-		if (userValue[0].exp >= userValue[0].max_exp) {
-			User.update({_id : req.session.passport.user._id}, {$inc : {hp : 10, max_hp : 10, max_exp : 10, attack : 2, lv : 1, pw : 10, max_pw : 5}, $set : {exp : 0}}, function(err) {
-			});
-			var lvUpMsg = "레벨업 했습니다! 최대 생명력이 10, 공격력이 2 최대 파워가 5 증가 했습니다. 생명력 10, 파워 10은 보너스";
-		} else {
-			var lvUpMsg = "";
-		}
-		User.update({user_nick : req.body.attackValue}, {$inc : {hp : - attack}}, function(err) {
-			User.update({_id : req.session.passport.user._id}, {$inc : {exp : expUp}}, function(err) {
-				User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValueFinal) {
-					var user_nick = userValueFinal[0].user_nick;
-					var map = userValueFinal[0].map;
-					var place = userValueFinal[0].place;
-					var lv = userValueFinal[0].lv;
-					var max_hp = userValueFinal[0].max_hp;
-					var hp = userValueFinal[0].hp;
-					var max_pw = userValueFinal[0].max_pw;
-					var pw = userValueFinal[0].pw;
-					var max_exp = userValueFinal[0].max_exp;
-					var exp = userValueFinal[0].exp;
-					var item = userValueFinal[0].item;
-					var attack = userValueFinal[0].attack;
-					res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item+'&attack='+attack+'&msg='+msg+'&lvUpMsg='+lvUpMsg);
+	if (req.user) {
+		User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
+			var attack = userValue[0].attack;
+			var expUp = 5;
+			var match = userValue[0].match;
+			var msg = match+"에게 데미지 : "+attack+"! 경험치 : "+expUp+" 상승";
+			//레벨업
+			if (userValue[0].exp >= userValue[0].max_exp) {
+				User.update({_id : req.session.passport.user._id}, {$inc : {hp : 10, max_hp : 10, max_exp : 10, attack : 2, lv : 1, pw : 10, max_pw : 5}, $set : {exp : 0}}, function(err) {
+				});
+				var lvUpMsg = "레벨업 했습니다! 최대 생명력이 10, 공격력이 2 최대 파워가 5 증가 했습니다. 생명력 10, 파워 10은 보너스";
+			} else {
+				var lvUpMsg = "";
+			}
+			User.update({user_nick : match}, {$inc : {hp : - attack}}, function(err) {
+				User.update({_id : req.session.passport.user._id}, {$inc : {exp : expUp}, $set : {match : null}}, function(err) {
+					//로그
+					User.update({user_nick : match}, {$push : {log : "l"+req.session.passport.user.user_nick+"에게 데미지 : "+attack}}, function(err) {
+
+					});
+					res.redirect('/game/?msg='+msg+'&lvUpMsg='+lvUpMsg);
 				});
 			});
 		});
-	});
+	} else {
+		res.render('login');
+	}
 });
 //DB셋팅용 임시소스
 // Map.update({_id : "58bf9e30f96899a76f5cf899"}, {$push : {item : '마음'}}, function(err) {
