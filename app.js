@@ -67,6 +67,7 @@ var userData = mongoose.Schema({
     max_exp : {type : Number},
     exp : {type : Number},
     item : [String],
+    attack : {type : Number},
     created_at : {type : Date, default : Date.now},
     last_logout : {type : Date}
 });
@@ -98,6 +99,7 @@ app.post('/joinForm', function(req, res) {
     	pw : 25,
     	max_exp : 10,
     	exp : 0,
+    	attack : 1,
     	item : []
    	});
     user.save(function(err) {
@@ -166,16 +168,18 @@ app.post('/joinGameForm', function(req, res) {
 		var max_exp = userValue[0].max_exp;
 		var exp = userValue[0].exp;
 		var item = userValue[0].item;
-		res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item);
+		var attack = userValue[0].attack;
+		res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item+'&attack='+attack);
 	});
 });
 app.get('/game', function(req, res) {
-	res.render('game', {user:req.user, user_nick:req.query.user_nick, map:req.query.map, place:req.query.place, lv:req.query.lv, max_hp:req.query.max_hp, hp:req.query.hp, max_pw:req.query.max_pw, pw:req.query.pw, max_exp:req.query.max_exp, exp:req.query.exp, item:req.query.item});
+	res.render('game', {user:req.user, user_nick:req.query.user_nick, map:req.query.map, place:req.query.place, lv:req.query.lv, max_hp:req.query.max_hp, hp:req.query.hp, max_pw:req.query.max_pw, pw:req.query.pw, max_exp:req.query.max_exp, exp:req.query.exp, item:req.query.item, attack:req.query.attack, meet:req.query.meet, msg:req.query.msg});
 });
 //이동
 app.post('/moveForm', function(req, res) {
 	var currentPlace = req.body.moveValue;
 	if (req.session.passport.user.pw > 0) {
+		//파워 감소, 유저의 장소
 		User.update({_id : req.session.passport.user._id}, {$inc : {pw : - 1}, $set : {place : currentPlace}}, function(err) {
 			if (err) throw err;
 		});
@@ -183,9 +187,9 @@ app.post('/moveForm', function(req, res) {
 		Map.update({user : req.session.passport.user.user_nick}, {$pull : {user : req.session.passport.user.user_nick}}, function(err) {
 			if (err) throw err;
 		});
-		//유저의 새로운 위치를 등록
-		Map.update({place : currentPlace}, {$push : {user : req.session.passport.user.user_nick}}, function() {
-			
+		//맵에 유저의 새로운 위치를 등록
+		Map.update({place : currentPlace}, {$push : {user : req.session.passport.user.user_nick}}, function(err) {
+			if (err) throw err;
 		});
 		var action = Math.floor(Math.random() * 2) + 1;
 		if (action === 1) {
@@ -199,26 +203,27 @@ app.post('/moveForm', function(req, res) {
 					Map.update({place : currentPlace}, {$pull : {item : null}}, function(err) {
 						User.update({_id : req.session.passport.user._id}, {$push : {item : randomItem}}, function(err) {
 							User.update({_id : req.session.passport.user._id}, {$pull : {item : null}}, function(err) {
-								
+								//유저 데이터 갱신에 필요
+								User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
+									var user_nick = userValue[0].user_nick;
+									var map = userValue[0].map;
+									var place = userValue[0].place;
+									var lv = userValue[0].lv;
+									var max_hp = userValue[0].max_hp;
+									var hp = userValue[0].hp;
+									var max_pw = userValue[0].max_pw;
+									var pw = userValue[0].pw;
+									var max_exp = userValue[0].max_exp;
+									var exp = userValue[0].exp;
+									var item = userValue[0].item;
+									var attack = userValue[0].attack;
+									res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item+'&attack='+attack);
+								});
+								return;
 							});
 						});
 					});
 				});
-			});
-			//유저 데이터 갱신에 필요
-			User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
-				var user_nick = userValue[0].user_nick;
-				var map = userValue[0].map;
-				var place = userValue[0].place;
-				var lv = userValue[0].lv;
-				var max_hp = userValue[0].max_hp;
-				var hp = userValue[0].hp;
-				var max_pw = userValue[0].max_pw;
-				var pw = userValue[0].pw;
-				var max_exp = userValue[0].max_exp;
-				var exp = userValue[0].exp;
-				var item = userValue[0].item;
-				res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item);
 			});
 		} else if (action === 2) {
 			//조우
@@ -226,34 +231,73 @@ app.post('/moveForm', function(req, res) {
 				var randNum = Math.floor(Math.random() * userValue[0].user.length);
 				var meet = userValue[0].user[randNum];
 				if (meet === req.session.passport.user.user_nick) {
-					console.log(1);
+					User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
+						var user_nick = userValue[0].user_nick;
+						var map = userValue[0].map;
+						var place = userValue[0].place;
+						var lv = userValue[0].lv;
+						var max_hp = userValue[0].max_hp;
+						var hp = userValue[0].hp;
+						var max_pw = userValue[0].max_pw;
+						var pw = userValue[0].pw;
+						var max_exp = userValue[0].max_exp;
+						var exp = userValue[0].exp;
+						var item = userValue[0].item;
+						var attack = userValue[0].attack;
+						res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item+'&attack='+attack);
+					});
 					return;
 				} else {
-					//res.redirect('/game/?meet='+meet);
-					console.log(2);
+					//유저 데이터 갱신에 필요
+					User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
+						var user_nick = userValue[0].user_nick;
+						var map = userValue[0].map;
+						var place = userValue[0].place;
+						var lv = userValue[0].lv;
+						var max_hp = userValue[0].max_hp;
+						var hp = userValue[0].hp;
+						var max_pw = userValue[0].max_pw;
+						var pw = userValue[0].pw;
+						var max_exp = userValue[0].max_exp;
+						var exp = userValue[0].exp;
+						var item = userValue[0].item;
+						var attack = userValue[0].attack;
+						res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item+'&attack='+attack+'&meet='+meet);
+					});
 					return;
 				}
-			});
-
-			//유저 데이터 갱신에 필요
-			User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
-				var user_nick = userValue[0].user_nick;
-				var map = userValue[0].map;
-				var place = userValue[0].place;
-				var lv = userValue[0].lv;
-				var max_hp = userValue[0].max_hp;
-				var hp = userValue[0].hp;
-				var max_pw = userValue[0].max_pw;
-				var pw = userValue[0].pw;
-				var max_exp = userValue[0].max_exp;
-				var exp = userValue[0].exp;
-				var item = userValue[0].item;
-				res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item);
 			});
 		}
 	} else {
 		res.send('<script>alert("파워가 부족합니다.");location.href="/game";</script>');
 	}
+});
+app.post('/attackForm', function(req, res) {
+	console.log(1);
+	User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
+		var attack = userValue[0].attack;
+		var expUp = 1;
+		var msg = req.body.attackValue+"에게 데미지 : "+attack+"! 경험치 : "+expUp+" 상승";
+		User.update({user_nick : req.body.attackValue}, {$inc : {hp : - attack}}, function(err) {
+			User.update({_id : req.session.passport.user._id}, {$inc : {exp : expUp}}, function(err) {
+				User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValueExp) {
+					var user_nick = userValue[0].user_nick;
+					var map = userValue[0].map;
+					var place = userValue[0].place;
+					var lv = userValue[0].lv;
+					var max_hp = userValue[0].max_hp;
+					var hp = userValue[0].hp;
+					var max_pw = userValue[0].max_pw;
+					var pw = userValue[0].pw;
+					var max_exp = userValue[0].max_exp;
+					var exp = userValueExp[0].exp;
+					var item = userValue[0].item;
+					var attack = userValue[0].attack;
+					res.redirect('/game/?user_nick='+user_nick+'&map='+map+'&place='+place+'&lv='+lv+'&max_hp='+max_hp+'&hp='+hp+'&max_pw='+max_pw+'&pw='+pw+'&max_exp='+max_exp+'&exp='+exp+'&item='+item+'&attack='+attack+'&msg='+msg);
+				});
+			});
+		});
+	});
 });
 //DB셋팅용 임시소스
 // Map.update({_id : "58bf9e30f96899a76f5cf899"}, {$push : {item : '마음'}}, function(err) {

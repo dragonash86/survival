@@ -16,6 +16,7 @@ label{cursor:pointer}
 
 /* common */
 h2{padding:30px 0}
+h3{padding:20px 0}
 .blind{overflow:hidden;position:absolute;top:-9999px;left:-9999px;width:1px;height:1px;font-size:1px;height:1px}
 .btn{display:block;width:158px;height:40px;line-height:36px;font-size:16px;text-align:center;color:#1c2833;border:1px solid #1c2833;cursor:pointer;margin:30px auto}
 .btn:hover{color:#fff;background:#1c2833;text-decoration:none}
@@ -45,6 +46,9 @@ h2{padding:30px 0}
 .login li:last-child{float:right}
 .login li span{color:#EA4836;padding:0 10px}
 /* 게임 */
-.game .place li{float:left}
-.game .place input{display:block;width:158px;height:40px;line-height:36px;font-size:16px;text-align:center;color:#1c2833;border:1px solid #1c2833;cursor:pointer;margin-right:10px}
-.game .place input:hover{color:#fff;background:#1c2833;text-decoration:none}
+.game .action li{float:left}
+.game .action input{display:block;width:158px;height:40px;line-height:36px;font-size:16px;text-align:center;color:#1c2833;border:1px solid #1c2833;cursor:pointer;margin-right:10px}
+.game .action input:hover{color:#fff;background:#1c2833;text-decoration:none}
+.game .meet{clear:left;display:block}
+.game .msg{clear:left;display:block}
+

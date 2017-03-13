@@ -9,19 +9,37 @@
 				<li>닉네임 : <%= user_nick %></li>
 				<li>레벨 : <%= lv %></li>
 				<li>생명력 : <%= hp %>/<%= max_hp %></li>
+				<li>공격력 : <%= attack %></li>
 				<li>파워 : <%= pw %>/<%= max_pw %></li>
 				<li>경험치 : <%= exp %>/<%= max_exp %></li>
 				<li>아이템 : <%= item %></li>
 			</ul>
 			<h2>이동하기</h2>
-			<form action="/moveForm" method="post">
-				<ul class="place">
+			<form action="/moveForm" id="move" method="post">
+				<ul class="action">
 					<li><input type="button" readonly="readonly" value="안전 지대" /></li>
 					<li><input type="button" readonly="readonly" value="헤이븐" /></li>
 					<li><input type="button" readonly="readonly" value="오금" /></li>
 				</ul>
 				<input type="hidden" name="moveValue" id="hidden" value="" />
 			</form>
+			
+			<% if (meet) { %>
+			<div class="meet">
+				<h3><%= meet %> 조우</h3>
+				<form action="/attackForm" id="attack" method="post">
+					<ul class="action">
+						<li><input type="button" readonly="readonly" value="공격" /></li>
+					</ul>
+					<input type="hidden" name="attackValue" value="<%= meet %>" />
+				</form>
+			</div>
+			<% } %>
+			<% if (msg) { %>
+			<div class="msg">
+				<h3><%= msg %></h3>
+			</div>
+			<% } %>
 		</div>
 	<% } else { %>
 		<script>location.href = "/login";</script>
@@ -29,9 +47,12 @@
     </div>
     <script>
     	$(function() {
-			$(".place input").click(function() {
-				$("form #hidden").val($(this).context.value);
-    			$("form").submit();
+			$("#move input").click(function() {
+				$("#hidden").val($(this).context.value);
+    			$("#move").submit();
+			});
+			$("#attack input").click(function() {
+				$("#attack").submit();
 			});
 		});
 	</script>
