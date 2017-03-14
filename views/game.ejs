@@ -1,57 +1,86 @@
 <% include include/header.ejs %>
 	<div class="container game">
-	<% if (user) { %>
+		<a href="/logout" class="btn">로그아웃</a>
+		<% if (userStat.hp > 0) { %>
 		<div class="status">
-			<a href="/logout" class="btn">로그아웃</a>
-			<h1><%= userStat[0].map %></h1>
+			<h1><%= userStat.map %></h1>
 			<ul>
-				<li>현재 위치 : <%= userStat[0].place %></li>
-				<li>닉네임 : <%= userStat[0].user_nick %></li>
-				<li>레벨 : <%= userStat[0].lv %></li>
-				<li>생명력 : <%= userStat[0].hp %>/<%= userStat[0].max_hp %></li>
-				<li>공격력 : <%= userStat[0].attack %></li>
-				<li>파워 : <%= userStat[0].pw %>/<%= userStat[0].max_pw %></li>
-				<li>경험치 : <%= userStat[0].exp %>/<%= userStat[0].max_exp %></li>
-				<li>아이템 : <%= userStat[0].item %></li>
+				<li>현재 위치 : <%= userStat.place %></li>
+				<li>닉네임 : <%= userStat.user_nick %></li>
+				<li>레벨 : <%= userStat.lv %></li>
+				<li>생명력 : <%= userStat.hp %>/<%= userStat.max_hp %></li>
+				<li>공격력 : <%= userStat.attack %></li>
+				<li>파워 : <%= userStat.pw %>/<%= userStat.max_pw %></li>
+				<li>경험치 : <%= userStat.exp %>/<%= userStat.max_exp %></li>
+				<li>Kill : <%= userStat.kill %></li>
+				<li class="item">
+					아이템 : 
+					<form action="/itemForm" id="item" method="post">
+						<ul> 
+						<% for (i = 0; i < userStat.item.length; i++) { %>
+							<li><input type="button" value="<%= userStat.item[i] %>" /></a></li>
+						<% }%>
+						</ul>
+						<input type="hidden" name="itemValue" id="hidden" value="" />
+					</form>
+				</li>
 			</ul>
+		</div>
+		<div>
 			<h2>이동하기</h2>
 			<form action="/moveForm" id="move" method="post">
 				<ul class="action">
-					<li><input type="button" readonly="readonly" value="안전 지대" /></li>
-					<li><input type="button" readonly="readonly" value="헤이븐" /></li>
-					<li><input type="button" readonly="readonly" value="오금" /></li>
+					<li><input type="button" value="안전 지대" /></li>
+					<li><input type="button" value="헤이븐" /></li>
+					<li><input type="button" value="오금" /></li>
 				</ul>
 				<input type="hidden" name="moveValue" id="hidden" value="" />
 			</form>
-			
-			<% if (userStat[0].match) { %>
+			<% if (userStat.match) { %>
 			<div class="meet">
-				<h3><%= userStat[0].match %> 조우</h3>
+				<h3><%= userStat.match %> 조우</h3>
+				<p>체력 : <%= matchStat.hp %></p>
 				<form action="/attackForm" id="attack" method="post">
 					<ul class="action">
-						<li><input type="button" readonly="readonly" value="공격" /></li>
+						<li><input type="button" value="공격" /></li>
 					</ul>
 				</form>
 			</div>
 			<% } %>
-			<% if (userStat[0].log) { %>
+			<% if (userStat.attackAfter) { %>
+			<div class="">
+				<h3><%= attackAfter.user_nick %></h3>
+				<p>체력 : <%= attackAfter.hp %></p>
+				<% if (attackAfter.hp <= 0) { %>
+				<p>사망</p>
+				<% } %>
+			</div>
+			<% } %>
+			<% if (userStat.log) { %>
 			<div class="log">
-				<h3><%= userStat[0].log %></h3>
+				<h3><%= userStat.log %></h3>
 			</div>
 			<% } %>
 		</div>
-	<% } else { %>
-		<script>location.href = "/login";</script>
-	<% } %>
+		<% } else { %>
+		<div class="death">
+			<h2>넌 이미 죽어있다.</h2>
+			<a href="/" class="btn">메인</a>
+		</div>
+		<% } %>
     </div>
     <script>
     	$(function() {
 			$("#move input").click(function() {
-				$("#hidden").val($(this).context.value);
+				$("#move #hidden").val($(this).context.value);
     			$("#move").submit();
 			});
 			$("#attack input").click(function() {
 				$("#attack").submit();
+			});
+			$("#item input").click(function() {
+				$("#item #hidden").val($(this).context.value);
+				$("#item").submit();
 			});
 		});
 	</script>

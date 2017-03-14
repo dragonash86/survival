@@ -28,7 +28,7 @@ h3{padding:20px 0}
 
 /* 회원가입 */
 .join li label{display:inline-block;width:25.64%;font-weight:normal;color:#111;padding:27px 0}
-.join li input{width:280px;height:36px;padding:9px 15px;border:1px solid #ddd}
+.join li input{width:280px;height:36px;border:1px solid #ddd;padding:9px 15px}
 .join li span{color:#EA4836;padding:0 10px}
 @media (max-width:768px) {
 	.join li{position:relative;padding-bottom:30px}
@@ -46,9 +46,13 @@ h3{padding:20px 0}
 .login li:last-child{float:right}
 .login li span{color:#EA4836;padding:0 10px}
 /* 게임 */
+.game .action{overflow:hidden}
 .game .action li{float:left}
 .game .action input{display:block;width:158px;height:40px;line-height:36px;font-size:16px;text-align:center;color:#1c2833;border:1px solid #1c2833;cursor:pointer;margin-right:10px}
 .game .action input:hover{color:#fff;background:#1c2833;text-decoration:none}
 .game .meet{clear:left;display:block}
 .game .msg{clear:left;display:block}
-
+.game .status ul{overflow:hidden}
+.game .status li{line-height:30px}
+.game .item li{float:left;margin-right:10px}
+.game .item li input{display:block;height:25px;line-height:25px;border:1px solid #1c2833;cursor:pointer;padding:0 10px}

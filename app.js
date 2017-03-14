@@ -68,9 +68,11 @@ var userData = mongoose.Schema({
     exp : {type : Number},
     item : [String],
     log : [String],
-    readLog : [String],
+    read_log : {type : String},
     match : {type : String},
+    attackAfter : {type : String},
     attack : {type : Number},
+    kill : {type : Number},
     created_at : {type : Date, default : Date.now},
     last_logout : {type : Date}
 });
@@ -103,10 +105,12 @@ app.post('/joinForm', function(req, res) {
     	max_exp : 10,
     	exp : 0,
     	attack : 1,
+    	kill : 0,
     	match : "",
+    	attackAfter : "",
     	item : [],
     	log : [],
-    	readLog : []
+    	read_log : ""
    	});
     user.save(function(err) {
         if (err) {
@@ -152,12 +156,37 @@ app.get('/login', function(req, res) {
 		res.render('login');
 	}
 });
+app.get('/moveForm', function(req, res) {
+	if (req.user) {
+		res.render('main');
+	} else {
+		res.render('login');
+	}
+});
+app.get('/itemForm', function(req, res) {
+	if (req.user) {
+		res.render('main');
+	} else {
+		res.render('login');
+	}
+});
 app.get('/game', function(req, res) {
 	if (req.user) {
 		User.find({_id : req.session.passport.user._id}, {_id : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
-			//로그
-			console.log(userValue[0].log);
-			res.render('game', {user:req.user, userStat:userValue});
+			//로그있으면 게임화면에서 보여주고 읽은 로그로 데이터 이동
+			var log = userValue[0].log;
+			if (log.length !== 0) {
+				User.update({_id : req.session.passport.user._id}, {$set : {log : []}}, function(err) {
+					User.update({_id : req.session.passport.user._id}, {$push : {read_log : log}}, function(err) {
+						if (err) throw err;
+					});
+				});
+			}
+			User.find({user_nick : userValue[0].match}, {_id : 0, hp : 1}, function(err, matchValue) {
+				User.find({user_nick : userValue[0].attackAfter}, {_id : 0, user_nick:1, hp : 1}, function(err, attackAfterValue) {
+					res.render('game', {user:req.user, userStat:userValue[0], matchStat:matchValue[0], attackAfter:attackAfterValue[0]});
+				});	
+			});
 		});
 	} else {
 		res.render('login');
@@ -240,22 +269,48 @@ app.post('/moveForm', function(req, res) {
 });
 app.post('/attackForm', function(req, res) {
 	if (req.user) {
-		User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
+		User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0}, function(err, userValue) {
 			var attack = userValue[0].attack;
 			var expUp = 5;
 			var match = userValue[0].match;
 			var log = match+"에게 데미지 : "+attack+"! 경험치 : "+expUp+" 상승";
 			User.update({user_nick : match}, {$inc : {hp : - attack}, $push : {log : req.session.passport.user.user_nick+"에게 데미지 : "+attack}}, function(err) {
-				User.update({_id : req.session.passport.user._id}, {$inc : {exp : expUp}, $set : {match : null}, $push : {log : log}}, function(err) {
-					var lvUpMsg = "레벨업 했습니다! 최대 생명력이 10, 공격력이 2 최대 파워가 5 증가 했습니다. 생명력 10, 파워 10은 보너스";
+				User.update({_id : req.session.passport.user._id}, {$inc : {exp : expUp}, $set : {match : null, attackAfter : match}, $push : {log : log}}, function(err) {
+					var upMaxHp = 10;
+					var upAttack = 2;
+					var upMaxPw = 5;
+					var bonusHp = 10;
+					var bonusPw = 10;
+					var lvUpMsg = "레벨업 했습니다! 최대 생명력이 "+upMaxHp+", 공격력이 "+upAttack+" 최대 파워가 "+upMaxPw+" 증가 했습니다. 보너스 생명력 "+bonusHp+", 보너스 파워 "+bonusPw;
 					//레벨업
 					if (userValue[0].exp >= userValue[0].max_exp) {
-						User.update({_id : req.session.passport.user._id}, {$inc : {hp : 10, max_hp : 10, max_exp : 10, attack : 2, lv : 1, pw : 10, max_pw : 5}, $set : {exp : 0}, $push : {log : lvUpMsg}}, function(err) {
+						User.update({_id : req.session.passport.user._id}, {$inc : {hp : bonusHp, max_hp : upMaxHp, max_exp : 10, attack : upAttack, lv : 1, pw : bonusPw, max_pw : upMaxPw}, $set : {exp : 0}, $push : {log : lvUpMsg}}, function(err) {
 						});
 					}
+					//킬 카운트 & 사망 처리
+					User.find({user_nick : match}, {_id : 0, hp : 1}, function(err, matchValue) {
+						if (matchValue[0].hp <= 0) {
+							User.update({_id : req.session.passport.user._id}, {$inc : {kill : 1}, $set : {attackAfter : null}}, function(err) {
+							});
+						}
+					});
 					res.redirect('/game');
 				});
 			});
+		});
+	} else {
+		res.render('login');
+	}
+});
+app.post('/itemForm', function(req, res) {
+	if (req.user) {
+		User.find({_id : req.session.passport.user._id}, {_id : 0, item : 1}, function(err, itemValue) {
+			if (itemValue[0].item.indexOf(req.body.itemValue) === -1) {
+				res.send('<script>alert("님한테 없는 아이템 입니다.");location.href="/game";</script>');
+				return;
+			} else {
+				
+			}
 		});
 	} else {
 		res.render('login');
