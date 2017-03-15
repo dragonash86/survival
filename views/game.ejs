@@ -18,7 +18,7 @@
 					<form action="/itemForm" id="item" method="post">
 						<ul> 
 						<% for (i = 0; i < userStat.item.length; i++) { %>
-							<li><input type="button" value="<%= userStat.item[i] %>" /></a></li>
+							<li><input type="button" value="<%= userStat.item[i].name %>(<%= userStat.item[i].count %>)" /></a></li>
 						<% }%>
 						</ul>
 						<input type="hidden" name="itemValue" id="hidden" value="" />
@@ -48,11 +48,14 @@
 			</div>
 			<% } %>
 			<% if (userStat.attackAfter) { %>
-			<div class="">
+			<div class="" id="after">
 				<h3><%= attackAfter.user_nick %></h3>
-				<p>체력 : <%= attackAfter.hp %></p>
+				<p >체력 : <%= attackAfter.hp %></p>
 				<% if (attackAfter.hp <= 0) { %>
 				<p>사망</p>
+				<script>
+					$("#after").addClass("on");//동적 클래스 추가 테스트 
+				</script>
 				<% } %>
 			</div>
 			<% } %>
@@ -78,9 +81,15 @@
 			$("#attack input").click(function() {
 				$("#attack").submit();
 			});
+			console.log("<%= userStat.item[0].name %>");
 			$("#item input").click(function() {
-				$("#item #hidden").val($(this).context.value);
-				$("#item").submit();
+				//$("#item #hidden").val($(this).context.value);
+
+				
+				//$(this).parent().index();
+				//console.log($(this).context.value);
+				//console.log($(this).parent().index());
+				//$("#item").submit();
 			});
 		});
 	</script>

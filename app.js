@@ -66,7 +66,7 @@ var userData = mongoose.Schema({
     pw : {type : Number},
     max_exp : {type : Number},
     exp : {type : Number},
-    item : [String],
+    item : [],
     log : [String],
     read_log : {type : String},
     match : {type : String},
@@ -165,7 +165,7 @@ app.get('/moveForm', function(req, res) {
 });
 app.get('/itemForm', function(req, res) {
 	if (req.user) {
-		res.render('main');
+		res.render('/');
 	} else {
 		res.render('login');
 	}
@@ -288,9 +288,12 @@ app.post('/attackForm', function(req, res) {
 						});
 					}
 					//킬 카운트 & 사망 처리
-					User.find({user_nick : match}, {_id : 0, hp : 1}, function(err, matchValue) {
+					User.find({user_nick : match}, {_id : 0, hp : 1, place : 1}, function(err, matchValue) {
+						console.log(matchValue[0].place);
 						if (matchValue[0].hp <= 0) {
-							User.update({_id : req.session.passport.user._id}, {$inc : {kill : 1}, $set : {attackAfter : null}}, function(err) {
+							Map.update({place : matchValue[0].place}, {$push : {death : match}}, function(err) {
+								User.update({_id : req.session.passport.user._id}, {$inc : {kill : 1}, $set : {attackAfter : null}}, function(err) {
+								});
 							});
 						}
 					});
@@ -304,12 +307,26 @@ app.post('/attackForm', function(req, res) {
 });
 app.post('/itemForm', function(req, res) {
 	if (req.user) {
-		User.find({_id : req.session.passport.user._id}, {_id : 0, item : 1}, function(err, itemValue) {
-			if (itemValue[0].item.indexOf(req.body.itemValue) === -1) {
-				res.send('<script>alert("님한테 없는 아이템 입니다.");location.href="/game";</script>');
-				return;
+		User.find({_id : req.session.passport.user._id}, {_id : 0, item : 1, hp : 1, max_hp : 1}, function(err, hasItemValue) {
+			console.log(hasItemValue[0].item[0].name);
+			console.log(req.body.itemValue);
+			if (hasItemValue[0].item[0].name.indexOf(req.body.hasItemValue) === 0) {
+				if (hasItemValue[0].item[0].effect === "생명력") {
+					var value = hasItemValue[0].item[0].value;
+					//최대체력 초과로 회복 못하게 하기
+					if (hasItemValue[0].hp + itemNum > hasItemValue[0].max_hp) {
+						value = hasItemValue[0].max_hp - hasItemValue[0].hp;
+					}
+					var log = "체력이 "+itemNum+" 회복됐다.";
+					User.update({_id : req.session.passport.user._id}, {$inc : {hp : itemNum}, $pull : {item : req.body.hasItemValue}, $push : {log : log}}, function(err) {
+						res.redirect('/game');
+					});
+				} else if (hasItemValue[0].item) {
+
+				}
 			} else {
-				
+				res.send('<script>alert("존재하지 않는 아이템 입니다.");location.href="/game";</script>');
+				return;
 			}
 		});
 	} else {
@@ -320,12 +337,19 @@ app.post('/itemForm', function(req, res) {
 // Map.update({_id : "58bf9e30f96899a76f5cf899"}, {$push : {item : '마음'}}, function(err) {
 // 	if (err) throw err;
 // });
-//테스트용 임시소스
-// Map.find({place : '오금'}, {_id : 0, user : 1 }, function(err, userValue) {
-// 	var randNum = Math.floor(Math.random() * userValue[0].user.length);
-// 	//console.log("랜덤 넘버 : "+randNum);
-// 	console.log(userValue[0].user);
-// 	console.log(userValue[0].user[randNum]);
+//조회용 임시소스
+// User.find({_id : "58be0a2156026f294c89be5a"}, {_id : 0, item : 1}, function(err, hasItemValue) {
+// 	console.log(hasItemValue[0].item[0].name);
+// 	console.log(hasItemValue[0].item[0].name.indexOf("과자"));
+// });
+// User.find({item : {$elemMatch : {name : "과자"}}}, function(err, itemValue) {
+// 	console.log(itemValue);
+// });
+// User.find({_id : "58be0a2156026f294c89be5a"}, {_id : 0, item : 1}, function(err, itemValue) {
+// 	console.log(itemValue[0].item[0].name);
+// });
+// User.find({'item.0.name' : "과자"}, {_id : 0, item : 1}, function(err, itemValue) {
+// 	console.log(itemValue);
 // });
 // Map.find({place : '오금'}, {_id : 0, item : 1 }, function(err, itemValue) {
 // 	var randNum = Math.floor(Math.random() * itemValue[0].item.length);
@@ -333,3 +357,12 @@ app.post('/itemForm', function(req, res) {
 // 	console.log(itemValue[0].item);
 // 	console.log(itemValue[0].item.length);
 // });
+//코테이션 테스트 
+//console.log('"<%= userStat.item['+'$(this).parent().index()'+'].name %>"');
+//console.log("<%= userStat.item["+$(this).parent().index()+"].name %>");
+//console.log('"<%= userStat.item[+"'$(this).parent().index()+'"+].name %>"');
+var randNum = 1
+//console.log('"item.'+randNum+'"');// = 최종 "로 감싸짐
+//'"<%= userStat.item['+$(this).parent().index()+'].name %>"'
+//console.log('"<%= userStat.item['+$(this).parent().index()+'].name %>"');
+console.log('"<%= userStat.item['+randNum+'].name %>"');
