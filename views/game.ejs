@@ -18,7 +18,7 @@
 					<form action="/itemForm" id="item" method="post">
 						<ul> 
 						<% for (i = 0; i < userStat.item.length; i++) { %>
-							<li><input type="button" value="<%= userStat.item[i].name %>(<%= userStat.item[i].count %>)" /></a></li>
+							<li><input type="button" value="<%= userStat.item[i].name %>" /> (<%= userStat.item[i].count %>)</li>
 						<% }%>
 						</ul>
 						<input type="hidden" name="itemValue" id="hidden" value="" />
@@ -81,15 +81,9 @@
 			$("#attack input").click(function() {
 				$("#attack").submit();
 			});
-			console.log("<%= userStat.item[0].name %>");
 			$("#item input").click(function() {
-				//$("#item #hidden").val($(this).context.value);
-
-				
-				//$(this).parent().index();
-				//console.log($(this).context.value);
-				//console.log($(this).parent().index());
-				//$("#item").submit();
+				$("#item #hidden").val($(this).context.value);
+				$("#item").submit();
 			});
 		});
 	</script>

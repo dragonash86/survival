@@ -308,9 +308,9 @@ app.post('/attackForm', function(req, res) {
 app.post('/itemForm', function(req, res) {
 	if (req.user) {
 		User.find({_id : req.session.passport.user._id}, {_id : 0, item : 1, hp : 1, max_hp : 1}, function(err, hasItemValue) {
-			console.log(hasItemValue[0].item[0].name);
+			console.log(hasItemValue[0].item);
 			console.log(req.body.itemValue);
-			if (hasItemValue[0].item[0].name.indexOf(req.body.hasItemValue) === 0) {
+			if (hasItemValue[0].item.indexOf(req.body.itemValue) === 0) {
 				if (hasItemValue[0].item[0].effect === "생명력") {
 					var value = hasItemValue[0].item[0].value;
 					//최대체력 초과로 회복 못하게 하기
@@ -361,8 +361,8 @@ app.post('/itemForm', function(req, res) {
 //console.log('"<%= userStat.item['+'$(this).parent().index()'+'].name %>"');
 //console.log("<%= userStat.item["+$(this).parent().index()+"].name %>");
 //console.log('"<%= userStat.item[+"'$(this).parent().index()+'"+].name %>"');
-var randNum = 1
+// var randNum = 1
 //console.log('"item.'+randNum+'"');// = 최종 "로 감싸짐
 //'"<%= userStat.item['+$(this).parent().index()+'].name %>"'
 //console.log('"<%= userStat.item['+$(this).parent().index()+'].name %>"');
-console.log('"<%= userStat.item['+randNum+'].name %>"');
+// console.log('"<%= userStat.item['+randNum+'].name %>"');
