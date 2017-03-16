@@ -35,7 +35,7 @@ app.get('/logout', function(req, res) {
 		if (err) throw err;
 	});
 	req.logout();
-	req.session.save(function(){
+	req.session.save(function() {
 		res.redirect('/login');
 	});
 });
@@ -198,12 +198,10 @@ app.post('/joinGameForm', function(req, res) {
 	   	var startMap = "시작 지점";
 	   	var startPlace = "안전 지대";
 		User.update({_id : req.session.passport.user._id}, {$set : {map : startMap, place : startPlace}}, function(err) {
-			if (err) throw err;
+			Map.update({place : startPlace}, {$addToSet : {user : req.session.passport.user.user_nick}}, function(err) {
+				res.redirect('/game');
+			});
 		});
-		Map.update({place : startPlace}, {$addToSet : {user : req.session.passport.user.user_nick}}, function(err) {
-			if (err) throw err;
-		});
-		res.redirect('/game');
 	} else {
 		res.render('login');
 	}
@@ -289,7 +287,6 @@ app.post('/attackForm', function(req, res) {
 					}
 					//킬 카운트 & 사망 처리
 					User.find({user_nick : match}, {_id : 0, hp : 1, place : 1}, function(err, matchValue) {
-						console.log(matchValue[0].place);
 						if (matchValue[0].hp <= 0) {
 							Map.update({place : matchValue[0].place}, {$push : {death : match}}, function(err) {
 								User.update({_id : req.session.passport.user._id}, {$inc : {kill : 1}, $set : {attackAfter : null}}, function(err) {
@@ -326,7 +323,7 @@ app.post('/itemForm', function(req, res) {
 						//아이템 다 쓰면 제거
 						User.update({_id : req.session.passport.user._id}, {$inc : {hp : value}, $push : {log : log}}, function(err) {
 							User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : findItem.item[0].name}}}, {$inc: {"item.$.count" : -1 }}, function(err, result) {
-								if (findItem.item[0].count < 2) {//한번 더 최신 db 조회해야하는데 귀찮아서 2로
+								if (findItem.item[0].count === 1) {
 									User.update({_id : req.session.passport.user._id}, {$pull : {item : {name : findItem.item[0].name}}}, function(err) {
 										res.redirect('/game');
 										return;

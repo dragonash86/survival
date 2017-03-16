@@ -17,9 +17,9 @@
 					아이템 : 
 					<form action="/itemForm" id="item" method="post">
 						<ul> 
-						<% for (i = 0; i < userStat.item.length; i++) { %>
+							<% for (i = 0; i < userStat.item.length; i++) { %>
 							<li><input type="button" value="<%= userStat.item[i].name %>" /> (<%= userStat.item[i].count %>)</li>
-						<% }%>
+							<% }%>
 						</ul>
 						<input type="hidden" name="itemValue" id="hidden" value="" />
 					</form>
