@@ -308,22 +308,37 @@ app.post('/attackForm', function(req, res) {
 app.post('/itemForm', function(req, res) {
 	if (req.user) {
 		User.find({_id : req.session.passport.user._id}, {_id : 0, item : 1, hp : 1, max_hp : 1}, function(err, hasItemValue) {
-			console.log(hasItemValue[0].item);
-			console.log(req.body.itemValue);
-			if (hasItemValue[0].item.indexOf(req.body.itemValue) === 0) {
-				if (hasItemValue[0].item[0].effect === "생명력") {
-					var value = hasItemValue[0].item[0].value;
-					//최대체력 초과로 회복 못하게 하기
-					if (hasItemValue[0].hp + itemNum > hasItemValue[0].max_hp) {
-						value = hasItemValue[0].max_hp - hasItemValue[0].hp;
-					}
-					var log = "체력이 "+itemNum+" 회복됐다.";
-					User.update({_id : req.session.passport.user._id}, {$inc : {hp : itemNum}, $pull : {item : req.body.hasItemValue}, $push : {log : log}}, function(err) {
-						res.redirect('/game');
-					});
-				} else if (hasItemValue[0].item) {
-
+			var count = 0;
+			for (var i = 0; i < hasItemValue[0].item.length; i++) {
+				if (hasItemValue[0].item[i].name === req.body.itemValue) {
+					count = count + 1;
 				}
+			}
+			if (count > 0) {
+				User.findOne({_id : req.session.passport.user._id}, {_id : 0, item : 1, item : {$elemMatch : {name : req.body.itemValue}}}, function(err, findItem) {
+					if (findItem.item[0].effect === "생명력") {
+						var value = findItem.item[0].value;
+						//최대체력 초과로 회복 못하게 하기
+						if (hasItemValue[0].hp + value > hasItemValue[0].max_hp) {
+							value = hasItemValue[0].max_hp - hasItemValue[0].hp;
+						}
+						var log = "체력이 "+value+" 회복됐다.";
+						//아이템 다 쓰면 제거
+						User.update({_id : req.session.passport.user._id}, {$inc : {hp : value}, $push : {log : log}}, function(err) {
+							User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : findItem.item[0].name}}}, {$inc: {"item.$.count" : -1 }}, function(err, result) {
+								if (findItem.item[0].count < 2) {//한번 더 최신 db 조회해야하는데 귀찮아서 2로
+									User.update({_id : req.session.passport.user._id}, {$pull : {item : {name : findItem.item[0].name}}}, function(err) {
+										res.redirect('/game');
+										return;
+									});
+								} else {
+									res.redirect('/game');
+									return;
+								}
+							});
+						});
+					}
+				});
 			} else {
 				res.send('<script>alert("존재하지 않는 아이템 입니다.");location.href="/game";</script>');
 				return;
@@ -339,12 +354,25 @@ app.post('/itemForm', function(req, res) {
 // });
 //조회용 임시소스
 // User.find({_id : "58be0a2156026f294c89be5a"}, {_id : 0, item : 1}, function(err, hasItemValue) {
-// 	console.log(hasItemValue[0].item[0].name);
-// 	console.log(hasItemValue[0].item[0].name.indexOf("과자"));
+// 	var count = 0;
+// 	for (var i = 0; i < hasItemValue[0].item.length; i++) {
+// 		if (hasItemValue[0].item[i].name === "과자") {
+// 			count = count + 1;
+// 		}
+// 	}
+// 	console.log(count);
+// 	//console.log(hasItemValue[0].item.indexOf("과자"));
 // });
-// User.find({item : {$elemMatch : {name : "과자"}}}, function(err, itemValue) {
-// 	console.log(itemValue);
+// User.findOne({_id : "58be0a2156026f294c89be5a"}, {_id : 0, item : 1, item : {$elemMatch : {name : "과자"}}}, function(err, itemValue) {
+// 	console.log(itemValue.item[0]);
 // });
+// User.findOne({_id : "58be0a2156026f294c89be5a"}, function(err, result) { 
+// 	console.log(result.item);
+// });
+// User.update({_id : "58be0a2156026f294c89be5a", item : {$elemMatch: { name : "과자"}}}, {$inc: { "item.$.count" : -1 }}, function(err, result) {
+// 	console.log(result);
+// });
+
 // User.find({_id : "58be0a2156026f294c89be5a"}, {_id : 0, item : 1}, function(err, itemValue) {
 // 	console.log(itemValue[0].item[0].name);
 // });
