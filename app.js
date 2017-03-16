@@ -290,11 +290,15 @@ app.post('/attackForm', function(req, res) {
 						if (matchValue[0].hp <= 0) {
 							Map.update({place : matchValue[0].place}, {$push : {death : match}}, function(err) {
 								User.update({_id : req.session.passport.user._id}, {$inc : {kill : 1}, $set : {attackAfter : null}}, function(err) {
+									res.redirect('/game');
+									return;
 								});
 							});
+						} else {
+							res.redirect('/game');
+							return;
 						}
 					});
-					res.redirect('/game');
 				});
 			});
 		});
