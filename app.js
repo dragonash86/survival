@@ -337,7 +337,7 @@ app.post('/attackForm', function(req, res) {
 });
 app.post('/itemForm', function(req, res) {
 	if (req.user) {
-		User.find({_id : req.session.passport.user._id}, {_id : 0, item : 1, hp : 1, max_hp : 1}, function(err, hasItemValue) {
+		User.find({_id : req.session.passport.user._id}, {_id : 0, item : 1, hp : 1, max_hp : 1, pw : 1, max_pw : 1}, function(err, hasItemValue) {
 			var count = 0;
 			for (var i = 0; i < hasItemValue[0].item.length; i++) {
 				if (hasItemValue[0].item[i].name === req.body.itemValue) {
@@ -368,7 +368,6 @@ app.post('/itemForm', function(req, res) {
 					//아이템 다 쓰면 제거
 					var query = {$inc : {}, $push : {"log" : log}};
 					query.$inc[effect] = value;
-					console.log(query);
 					User.update({_id : req.session.passport.user._id}, query, function(err) {
 						User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : findItem.item[0].name}}}, {$inc: {"item.$.count" : -1 }}, function(err, result) {
 							if (findItem.item[0].count === 1) {
