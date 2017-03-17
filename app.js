@@ -85,7 +85,7 @@ var mapData = mongoose.Schema({
     map : {type : String},
     place : {type : String},
     user : [String],
-    item : [String],
+    item : [],
     death : [String]
 });
 var Map = mongoose.model('mapData', mapData);
@@ -192,10 +192,10 @@ app.get('/game', function(req, res) {
 		res.render('login');
 	}
 });
+var startMap = "시작 지점";
 //게임 참가
 app.post('/joinGameForm', function(req, res) {
 	if (req.user) {
-	   	var startMap = "시작 지점";
 	   	var startPlace = "안전 지대";
 		User.update({_id : req.session.passport.user._id}, {$set : {map : startMap, place : startPlace}}, function(err) {
 			Map.update({place : startPlace}, {$addToSet : {user : req.session.passport.user.user_nick}}, function(err) {
@@ -212,9 +212,7 @@ app.post('/moveForm', function(req, res) {
 		var currentPlace = req.body.moveValue;
 		if (req.session.passport.user.pw > 0) {
 			//파워 감소, 유저의 장소, 조우상대를 없앰
-			User.update({_id : req.session.passport.user._id}, {$inc : {pw : - 1}, $set : {place : currentPlace, match : null}}, function(err) {
-				if (err) throw err;
-			});
+			User.update({_id : req.session.passport.user._id}, {$inc : {pw : - 1}, $set : {place : currentPlace, match : null}}, function(err) {});
 			//이동 시 유저의 원래 위치 없앰
 			Map.update({user : req.session.passport.user.user_nick}, {$pull : {user : req.session.passport.user.user_nick}}, function(err) {
 				if (err) throw err;
@@ -226,21 +224,45 @@ app.post('/moveForm', function(req, res) {
 			var action = Math.floor(Math.random() * 2) + 1;
 			if (action === 1) {
 				//랜덤한 아이템 획득
-				Map.find({place : currentPlace}, {_id : 0, item : 1 }, function(err, itemValue) {
-					var randNum = Math.floor(Math.random() * itemValue[0].item.length);
-					var randomItem = itemValue[0].item[randNum];
-					var query = {$unset : {}};
-					query.$unset["item."+randNum] = 1;
-					Map.update({place : currentPlace}, query, function(err) {
-						Map.update({place : currentPlace}, {$pull : {item : null}}, function(err) {
-							User.update({_id : req.session.passport.user._id}, {$push : {item : randomItem}}, function(err) {
-								User.update({_id : req.session.passport.user._id}, {$pull : {item : null}}, function(err) {
-									res.redirect('/game');
-									return;
+				Map.find({place : currentPlace}, {_id : 0, item : 1}, function(err, itemValue) {
+					if (itemValue[0].item.length > 0) {
+						var randNum = Math.floor(Math.random() * itemValue[0].item.length);
+						var randomItem = itemValue[0].item[randNum];
+						var randomItemName = randomItem.name;
+						var randomItemCount = randomItem.count;
+						var query = {$unset : {}};
+						query.$unset["item."+randNum] = 1;
+						Map.update({place : currentPlace}, query, function(err) {
+							Map.update({place : currentPlace}, {$pull : {item : null}}, function(err) {
+								var log = randomItemName+" "+randomItemCount+"개 획득";
+								var count = 0;
+								User.find({_id : req.session.passport.user._id}, {_id : 0, item : 1}, function(err, hasItemValue) {
+									for (var i = 0; i < hasItemValue[0].item.length; i++) {
+										if (hasItemValue[0].item[i].name === randomItemName) {
+											count = count + 1;
+										}
+									}
+									if (count > 0) {
+										User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : randomItemName}}}, {$inc: {"item.$.count" : randomItemCount}}, function(err, result) {
+										});	
+									} else {
+										User.update({_id : req.session.passport.user._id}, {$push : {item : randomItem, log : log}}, function(err) {
+										});	
+									}
+									User.update({_id : req.session.passport.user._id}, {$push : {log : log}}, function(err) {
+										res.redirect('/game');
+										return;
+									});
 								});
 							});
 						});
-					});
+					} else {
+						User.update({_id : req.session.passport.user._id}, {$push : {log : "이 장소엔 더 이상 쓸만한 게 없는 것 같다."}}, function(err) {
+							res.redirect('/game');
+							return;
+						});	
+					}
+					
 				});
 			} else if (action === 2) {
 				//조우
@@ -248,14 +270,13 @@ app.post('/moveForm', function(req, res) {
 					var randNum = Math.floor(Math.random() * userValue[0].user.length);
 					var match = userValue[0].user[randNum];
 					if (match === req.session.passport.user.user_nick) {
-						res.redirect('/game');
-						return;
+
 					} else {
 						User.update({_id : req.session.passport.user._id}, {$set : {match : match}}, function(err) {
-							res.redirect('/game');
-							return;
 						});
 					}
+					res.redirect('/game');
+					return;
 				});
 			}
 		} else {
@@ -290,8 +311,14 @@ app.post('/attackForm', function(req, res) {
 						if (matchValue[0].hp <= 0) {
 							Map.update({place : matchValue[0].place}, {$push : {death : match}}, function(err) {
 								User.update({_id : req.session.passport.user._id}, {$inc : {kill : 1}, $set : {attackAfter : null}}, function(err) {
-									res.redirect('/game');
-									return;
+									//유저 사망시 아이템 임시로 랜덤으로 뿌려줌
+									Map.find({map : startMap}, {_id : 0, place : 1}, function(err, result) {
+										var randNum = Math.floor(Math.random() * result.length);
+										Map.update({place : result[randNum].place}, {$push : {item : {name : "아메리카노", effect : "생명력", value : 10, count : 1}}}, function(err) {
+											res.redirect('/game');
+											return;
+										});
+									});
 								});
 							});
 						} else {
@@ -350,10 +377,14 @@ app.post('/itemForm', function(req, res) {
 	}
 });
 //DB셋팅용 임시소스
-// Map.update({_id : "58bf9e30f96899a76f5cf899"}, {$push : {item : '마음'}}, function(err) {
-// 	if (err) throw err;
-// });
+Map.update({place : "헤이븐"}, {$push : {item : {name : "아메리카노", effect : "생명력", value : 10, count : 1}}}, function(err) {});
 //조회용 임시소스
+// Map.find({map : "시작 지점"}, {_id : 0, place : 1}, function(err, result) {
+// 	var randNum = Math.floor(Math.random() * result.length);
+// 	console.log(result.length)
+// 	console.log(randNum);
+// 	console.log(result[randNum].place);
+// });
 // User.find({_id : "58be0a2156026f294c89be5a"}, {_id : 0, item : 1}, function(err, hasItemValue) {
 // 	var count = 0;
 // 	for (var i = 0; i < hasItemValue[0].item.length; i++) {
