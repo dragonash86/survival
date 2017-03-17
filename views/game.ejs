@@ -45,17 +45,17 @@
 						<li><input type="button" value="공격" /></li>
 					</ul>
 				</form>
-			</div>
-			<% } %>
-			<% if (userStat.attackAfter) { %>
-			<div class="" id="after">
-				<h3><%= attackAfter.user_nick %></h3>
-				<p >체력 : <%= attackAfter.hp %></p>
-				<% if (attackAfter.hp <= 0) { %>
-				<p>사망</p>
-				<script>
-					$("#after").addClass("on");//동적 클래스 추가 테스트 
-				</script>
+				<% if (userStat.attackAfter) { %>
+				<div class="" id="after">
+					<h3><%= attackAfter.user_nick %></h3>
+					<p >체력 : <%= attackAfter.hp %></p>
+					<% if (attackAfter.hp <= 0) { %>
+					<p>사망</p>
+					<script>
+						$("#after").addClass("on");//동적 클래스 추가 테스트 
+					</script>
+					<% } %>
+				</div>
 				<% } %>
 			</div>
 			<% } %>

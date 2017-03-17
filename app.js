@@ -243,16 +243,14 @@ app.post('/moveForm', function(req, res) {
 										}
 									}
 									if (count > 0) {
-										User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : randomItemName}}}, {$inc: {"item.$.count" : randomItemCount}}, function(err, result) {
+										User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : randomItemName}}}, {$inc: {"item.$.count" : randomItemCount}, $push : {log : log}}, function(err, result) {
 										});	
 									} else {
 										User.update({_id : req.session.passport.user._id}, {$push : {item : randomItem, log : log}}, function(err) {
 										});	
 									}
-									User.update({_id : req.session.passport.user._id}, {$push : {log : log}}, function(err) {
-										res.redirect('/game');
-										return;
-									});
+									res.redirect('/game');
+									return;
 								});
 							});
 						});
@@ -260,7 +258,7 @@ app.post('/moveForm', function(req, res) {
 						User.update({_id : req.session.passport.user._id}, {$push : {log : "이 장소엔 더 이상 쓸만한 게 없는 것 같다."}}, function(err) {
 							res.redirect('/game');
 							return;
-						});	
+						});
 					}
 					
 				});
@@ -270,7 +268,8 @@ app.post('/moveForm', function(req, res) {
 					var randNum = Math.floor(Math.random() * userValue[0].user.length);
 					var match = userValue[0].user[randNum];
 					if (match === req.session.passport.user.user_nick) {
-
+						User.update({_id : req.session.passport.user._id}, {$push : {log : "다른 사람들은 어디있는 걸까..?"}}, function(err) {
+						});
 					} else {
 						User.update({_id : req.session.passport.user._id}, {$set : {match : match}}, function(err) {
 						});
@@ -314,7 +313,10 @@ app.post('/attackForm', function(req, res) {
 									//유저 사망시 아이템 임시로 랜덤으로 뿌려줌
 									Map.find({map : startMap}, {_id : 0, place : 1}, function(err, result) {
 										var randNum = Math.floor(Math.random() * result.length);
-										Map.update({place : result[randNum].place}, {$push : {item : {name : "아메리카노", effect : "생명력", value : 10, count : 1}}}, function(err) {
+										Map.update({place : result[randNum].place}, {$pushAll : {item : [
+											{name : "아메리카노", effect : "생명력", value : 10, count : 1},
+											{name : "박카스", effect : "파워", value : 10, count : 1}
+										]}}, function(err) {
 											res.redirect('/game');
 											return;
 										});
@@ -344,28 +346,42 @@ app.post('/itemForm', function(req, res) {
 			}
 			if (count > 0) {
 				User.findOne({_id : req.session.passport.user._id}, {_id : 0, item : 1, item : {$elemMatch : {name : req.body.itemValue}}}, function(err, findItem) {
-					if (findItem.item[0].effect === "생명력") {
-						var value = findItem.item[0].value;
-						//최대체력 초과로 회복 못하게 하기
-						if (hasItemValue[0].hp + value > hasItemValue[0].max_hp) {
-							value = hasItemValue[0].max_hp - hasItemValue[0].hp;
+					var value = findItem.item[0].value;
+					var effect = findItem.item[0].effect;
+					var userHp = hasItemValue[0].hp;
+					var userMaxHp = hasItemValue[0].max_hp;
+					var userPw = hasItemValue[0].pw;
+					var userMaxPw = hasItemValue[0].max_pw;
+					//최대값 초과로 회복 못하게 하기
+					if (effect === "생명력") {
+						if (userHp + value > userMaxHp) {
+							value = userMaxHp - userHp;
 						}
-						var log = "체력이 "+value+" 회복됐다.";
-						//아이템 다 쓰면 제거
-						User.update({_id : req.session.passport.user._id}, {$inc : {hp : value}, $push : {log : log}}, function(err) {
-							User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : findItem.item[0].name}}}, {$inc: {"item.$.count" : -1 }}, function(err, result) {
-								if (findItem.item[0].count === 1) {
-									User.update({_id : req.session.passport.user._id}, {$pull : {item : {name : findItem.item[0].name}}}, function(err) {
-										res.redirect('/game');
-										return;
-									});
-								} else {
+						effect = "hp";
+					} else if (effect === "파워") {
+						if (userPw + value > userMaxPw) {
+							value = userMaxPw - userPw;
+						}
+						effect = "pw";
+					}
+					var log = req.body.itemValue+"사용. "+effect+" "+value+" 회복";
+					//아이템 다 쓰면 제거
+					var query = {$inc : {}, $push : {"log" : log}};
+					query.$inc[effect] = value;
+					console.log(query);
+					User.update({_id : req.session.passport.user._id}, query, function(err) {
+						User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : findItem.item[0].name}}}, {$inc: {"item.$.count" : -1 }}, function(err, result) {
+							if (findItem.item[0].count === 1) {
+								User.update({_id : req.session.passport.user._id}, {$pull : {item : {name : findItem.item[0].name}}}, function(err) {
 									res.redirect('/game');
 									return;
-								}
-							});
+								});
+							} else {
+								res.redirect('/game');
+								return;
+							}
 						});
-					}
+					});
 				});
 			} else {
 				res.send('<script>alert("존재하지 않는 아이템 입니다.");location.href="/game";</script>');
@@ -377,7 +393,10 @@ app.post('/itemForm', function(req, res) {
 	}
 });
 //DB셋팅용 임시소스
-Map.update({place : "헤이븐"}, {$push : {item : {name : "아메리카노", effect : "생명력", value : 10, count : 1}}}, function(err) {});
+Map.update({place : "헤이븐"}, {$pushAll : {item : [
+	{name : "아메리카노", effect : "생명력", value : 10, count : 1},
+	{name : "박카스", effect : "파워", value : 10, count : 1}
+]}}, function(err) {});
 //조회용 임시소스
 // Map.find({map : "시작 지점"}, {_id : 0, place : 1}, function(err, result) {
 // 	var randNum = Math.floor(Math.random() * result.length);
