@@ -9,7 +9,18 @@
 				<li>닉네임 : <%= userStat.user_nick %></li>
 				<li>레벨 : <%= userStat.lv %></li>
 				<li>생명력 : <%= userStat.hp %>/<%= userStat.max_hp %></li>
-				<li>공격력 : <%= userStat.attack %></li>
+				<li>
+					<form action="/itemClearForm" id="itemClear" method="post">
+					공격력 : <%= userStat.attack + userStat.add_damage %>
+					<% for (i = 0; i < userStat.item.length; i++) { %>
+						<% if (userStat.item[i].state === "착용 중") { %>
+							(+ <%=userStat.item[i].value %>)
+							<input type="button" value="<%= userStat.item[i].name %>" />
+						<% } %>
+					<% } %>
+					<input type="hidden" name="itemClearValue" id="hidden" value="" />
+					</form>
+				</li>
 				<li>파워 : <%= userStat.pw %>/<%= userStat.max_pw %></li>
 				<li>경험치 : <%= userStat.exp %>/<%= userStat.max_exp %></li>
 				<li>Kill : <%= userStat.kill %></li>
@@ -18,7 +29,11 @@
 					<form action="/itemForm" id="item" method="post">
 						<ul> 
 							<% for (i = 0; i < userStat.item.length; i++) { %>
-							<li><input type="button" value="<%= userStat.item[i].name %>" /> (<%= userStat.item[i].count %>)</li>
+							<li>
+								<% if (userStat.item[i].state !== "착용 중") { %>
+								<input type="button" value="<%= userStat.item[i].name %>" /><% if (userStat.item[i].effect === "생명력" || userStat.item[i].effect === "파워") { %>(<%= userStat.item[i].count %>)<% }%>
+								<% }%>
+							</li>
 							<% }%>
 						</ul>
 						<input type="hidden" name="itemValue" id="hidden" value="" />
@@ -84,6 +99,10 @@
 			$("#item input").click(function() {
 				$("#item #hidden").val($(this).context.value);
 				$("#item").submit();
+			});
+			$("#itemClear input").click(function() {
+				$("#itemClear #hidden").val($(this).context.value);
+				$("#itemClear").submit();
 			});
 		});
 	</script>

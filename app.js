@@ -72,6 +72,7 @@ var userData = mongoose.Schema({
     match : {type : String},
     attackAfter : {type : String},
     attack : {type : Number},
+    add_damage : {type : Number},
     kill : {type : Number},
     created_at : {type : Date, default : Date.now},
     last_logout : {type : Date}
@@ -106,6 +107,7 @@ app.post('/joinForm', function(req, res) {
     	exp : 0,
     	attack : 1,
     	kill : 0,
+    	add_damage : 0,
     	match : "",
     	attackAfter : "",
     	item : [],
@@ -231,10 +233,10 @@ app.post('/moveForm', function(req, res) {
 						var randomItemName = randomItem.name;
 						var randomItemCount = randomItem.count;
 						var query = {$unset : {}};
-						query.$unset["item."+randNum] = 1;
+						query.$unset["item." + randNum] = 1;
 						Map.update({place : currentPlace}, query, function(err) {
 							Map.update({place : currentPlace}, {$pull : {item : null}}, function(err) {
-								var log = randomItemName+" "+randomItemCount+"개 획득";
+								var log = randomItemName + " " + randomItemCount + "개 획득";
 								var count = 0;
 								User.find({_id : req.session.passport.user._id}, {_id : 0, item : 1}, function(err, hasItemValue) {
 									for (var i = 0; i < hasItemValue[0].item.length; i++) {
@@ -288,18 +290,18 @@ app.post('/moveForm', function(req, res) {
 app.post('/attackForm', function(req, res) {
 	if (req.user) {
 		User.find({_id : req.session.passport.user._id}, {_id : 0, created_at : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0}, function(err, userValue) {
-			var attack = userValue[0].attack;
+			var attack = userValue[0].attack + userValue[0].add_damage;
 			var expUp = 5;
 			var match = userValue[0].match;
-			var log = match+"에게 데미지 : "+attack+"! 경험치 : "+expUp+" 상승";
-			User.update({user_nick : match}, {$inc : {hp : - attack}, $push : {log : req.session.passport.user.user_nick+"에게 데미지 : "+attack}}, function(err) {
+			var log = match + "에게 데미지 : " + attack + "! 경험치 : " + expUp + " 상승";
+			User.update({user_nick : match}, {$inc : {hp : - attack}, $push : {log : req.session.passport.user.user_nick + "에게 데미지 : " + attack}}, function(err) {
 				User.update({_id : req.session.passport.user._id}, {$inc : {exp : expUp}, $set : {match : null, attackAfter : match}, $push : {log : log}}, function(err) {
 					var upMaxHp = 10;
 					var upAttack = 2;
 					var upMaxPw = 5;
 					var bonusHp = 10;
 					var bonusPw = 10;
-					var lvUpMsg = "레벨업 했습니다! 최대 생명력이 "+upMaxHp+", 공격력이 "+upAttack+" 최대 파워가 "+upMaxPw+" 증가 했습니다. 보너스 생명력 "+bonusHp+", 보너스 파워 "+bonusPw;
+					var lvUpMsg = "레벨업 했습니다! 최대 생명력이 " + upMaxHp + ", 공격력이 " + upAttack + " 최대 파워가 " + upMaxPw + " 증가 했습니다. 보너스 생명력 " + bonusHp + ", 보너스 파워 " + bonusPw;
 					//레벨업
 					if (userValue[0].exp >= userValue[0].max_exp) {
 						User.update({_id : req.session.passport.user._id}, {$inc : {hp : bonusHp, max_hp : upMaxHp, max_exp : 10, attack : upAttack, lv : 1, pw : bonusPw, max_pw : upMaxPw}, $set : {exp : 0}, $push : {log : lvUpMsg}}, function(err) {
@@ -347,41 +349,96 @@ app.post('/itemForm', function(req, res) {
 			if (count > 0) {
 				User.findOne({_id : req.session.passport.user._id}, {_id : 0, item : 1, item : {$elemMatch : {name : req.body.itemValue}}}, function(err, findItem) {
 					var value = findItem.item[0].value;
+					var name = findItem.item[0].name;
 					var effect = findItem.item[0].effect;
 					var userHp = hasItemValue[0].hp;
 					var userMaxHp = hasItemValue[0].max_hp;
 					var userPw = hasItemValue[0].pw;
 					var userMaxPw = hasItemValue[0].max_pw;
-					var effectQuery;
-					//최대값 초과로 회복 못하게 하기
-					if (effect === "생명력") {
-						if (userHp + value > userMaxHp) {
-							value = userMaxHp - userHp;
+					var effectQuery, log, query;
+
+					if (effect === "생명력" || effect === "파워") {
+						//최대값 초과로 회복 못하게 하기
+						if (effect === "생명력") {
+							if (userHp + value > userMaxHp) {
+								value = userMaxHp - userHp;
+							}
+							effectQuery = "hp";
+						} else if (effect === "파워") {
+							if (userPw + value > userMaxPw) {
+								value = userMaxPw - userPw;
+							}
+							effectQuery = "pw";
 						}
-						effectQuery = "hp";
-					} else if (effect === "파워") {
-						if (userPw + value > userMaxPw) {
-							value = userMaxPw - userPw;
-						}
-						effectQuery = "pw";
-					}
-					var log = req.body.itemValue+" 사용. "+effect+" "+value+" 회복";
-					//아이템 다 쓰면 제거
-					var query = {$inc : {}, $push : {"log" : log}};
-					query.$inc[effectQuery] = value;
-					User.update({_id : req.session.passport.user._id}, query, function(err) {
-						User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : findItem.item[0].name}}}, {$inc: {"item.$.count" : -1 }}, function(err, result) {
-							if (findItem.item[0].count === 1) {
-								User.update({_id : req.session.passport.user._id}, {$pull : {item : {name : findItem.item[0].name}}}, function(err) {
+						log = name + " 사용. " + effect + " " + value + " 회복";
+						query = {$inc : {}, $push : {"log" : log}};
+						query.$inc[effectQuery] = value;
+						User.update({_id : req.session.passport.user._id}, query, function(err) {
+							User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : name}}}, {$inc: {"item.$.count" : -1}}, function(err) {
+								if (findItem.item[0].count === 1) {
+									User.update({_id : req.session.passport.user._id}, {$pull : {item : {name : name}}}, function(err) {
+										res.redirect('/game');
+										return;
+									});
+								} else {
+									res.redirect('/game');
+									return;
+								}
+							});
+						});
+					} else if (effect === "무기") {
+						if (1) {
+							User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : name}}}, {$set : {"item.$.state" : "착용 중"}}, function(err) {
+								log = name + " 장착.";
+								query = {$inc : {add_damage : value}, $push : {"log" : log}};
+								User.update({_id : req.session.passport.user._id}, query, function(err) {
 									res.redirect('/game');
 									return;
 								});
-							} else {
+							});
+						}
+					} else {
+						log = "사용할 수 없는 아이템입니다.";
+						query = {$push : {"log" : log}};
+						User.update({_id : req.session.passport.user._id}, query, function(err) {
+							res.redirect('/game');
+							return;
+						});
+					}
+				});
+			} else {
+				res.send('<script>alert("존재하지 않는 아이템 입니다.");location.href="/game";</script>');
+				return;
+			}
+		});
+	} else {
+		res.render('login');
+	}
+});
+app.post('/itemClearForm', function(req, res) {
+	if (req.user) {
+		User.find({_id : req.session.passport.user._id}, {_id : 0, item : 1}, function(err, hasItemValue) {
+			var count = 0;
+			for (var i = 0; i < hasItemValue[0].item.length; i++) {
+				if (hasItemValue[0].item[i].name === req.body.itemClearValue) {
+					count = count + 1;
+				}
+			}
+			if (count > 0) {
+				User.findOne({_id : req.session.passport.user._id}, {_id : 0, item : 1, item : {$elemMatch : {name : req.body.itemClearValue}}}, function(err, findItem) {
+					var effect = findItem.item[0].effect;
+					var name = findItem.item[0].name;
+					var value = findItem.item[0].value;
+					if (effect === "무기") {
+						User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : name}}}, {$set : {"item.$.state" : ""}}, function(err) {
+							log = name + " 장착 해제";
+							query = {$inc : {add_damage : -value}, $push : {"log" : log}};
+							User.update({_id : req.session.passport.user._id}, query, function(err) {
 								res.redirect('/game');
 								return;
-							}
+							});
 						});
-					});
+					}
 				});
 			} else {
 				res.send('<script>alert("존재하지 않는 아이템 입니다.");location.href="/game";</script>');
@@ -394,8 +451,8 @@ app.post('/itemForm', function(req, res) {
 });
 //DB셋팅용 임시소스
 Map.update({place : "헤이븐"}, {$pushAll : {item : [
-	{name : "아메리카노", effect : "생명력", value : 10, count : 1},
-	{name : "박카스", effect : "파워", value : 10, count : 1}
+	{name : "커터칼", effect : "무기", value : 1, count : 1},
+	{name : "나이프", effect : "무기", value : 2, count : 1}
 ]}}, function(err) {});
 //조회용 임시소스
 // Map.find({map : "시작 지점"}, {_id : 0, place : 1}, function(err, result) {
