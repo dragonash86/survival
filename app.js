@@ -352,22 +352,23 @@ app.post('/itemForm', function(req, res) {
 					var userMaxHp = hasItemValue[0].max_hp;
 					var userPw = hasItemValue[0].pw;
 					var userMaxPw = hasItemValue[0].max_pw;
+					var effectQuery;
 					//최대값 초과로 회복 못하게 하기
 					if (effect === "생명력") {
 						if (userHp + value > userMaxHp) {
 							value = userMaxHp - userHp;
 						}
-						effect = "hp";
+						effectQuery = "hp";
 					} else if (effect === "파워") {
 						if (userPw + value > userMaxPw) {
 							value = userMaxPw - userPw;
 						}
-						effect = "pw";
+						effectQuery = "pw";
 					}
-					var log = req.body.itemValue+"사용. "+effect+" "+value+" 회복";
+					var log = req.body.itemValue+" 사용. "+effect+" "+value+" 회복";
 					//아이템 다 쓰면 제거
 					var query = {$inc : {}, $push : {"log" : log}};
-					query.$inc[effect] = value;
+					query.$inc[effectQuery] = value;
 					User.update({_id : req.session.passport.user._id}, query, function(err) {
 						User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : findItem.item[0].name}}}, {$inc: {"item.$.count" : -1 }}, function(err, result) {
 							if (findItem.item[0].count === 1) {
