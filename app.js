@@ -67,6 +67,11 @@ var userData = mongoose.Schema({
     max_exp : {type : Number},
     exp : {type : Number},
     item : [],
+    state_1 : {type : String},
+    state_2 : {type : String},
+    state_3 : {type : String},
+    state_4 : {type : String},
+    state_5 : {type : String},
     log : [String],
     read_log : {type : String},
     match : {type : String},
@@ -111,6 +116,11 @@ app.post('/joinForm', function(req, res) {
     	match : "",
     	attackAfter : "",
     	item : [],
+    	state_1 : "",
+    	state_2 : "",
+    	state_3 : "",
+    	state_4 : "",
+    	state_5 : "",
     	log : [],
     	read_log : ""
    	});
@@ -347,16 +357,16 @@ app.post('/itemForm', function(req, res) {
 				}
 			}
 			if (count > 0) {
-				User.findOne({_id : req.session.passport.user._id}, {_id : 0, item : 1, item : {$elemMatch : {name : req.body.itemValue}}}, function(err, findItem) {
+				User.findOne({_id : req.session.passport.user._id}, {_id : 0, item : 1, state_1 : 1, item : {$elemMatch : {name : req.body.itemValue}}}, function(err, findItem) {
 					var value = findItem.item[0].value;
 					var name = findItem.item[0].name;
 					var effect = findItem.item[0].effect;
+					var state_1 = findItem.state_1;
 					var userHp = hasItemValue[0].hp;
 					var userMaxHp = hasItemValue[0].max_hp;
 					var userPw = hasItemValue[0].pw;
 					var userMaxPw = hasItemValue[0].max_pw;
 					var effectQuery, log, query;
-
 					if (effect === "생명력" || effect === "파워") {
 						//최대값 초과로 회복 못하게 하기
 						if (effect === "생명력") {
@@ -387,13 +397,28 @@ app.post('/itemForm', function(req, res) {
 							});
 						});
 					} else if (effect === "무기") {
-						if (1) {
+						if (state_1 === "") {
 							User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : name}}}, {$set : {"item.$.state" : "착용 중"}}, function(err) {
 								log = name + " 장착.";
-								query = {$inc : {add_damage : value}, $push : {"log" : log}};
+								query = {$inc : {add_damage : value}, $set : {state_1 : name}, $push : {"log" : log}};
 								User.update({_id : req.session.passport.user._id}, query, function(err) {
 									res.redirect('/game');
 									return;
+								});
+							});
+						} else {
+							User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : state_1}}}, {$set : {"item.$.state" : ""}}, function(err) {
+								User.findOne({_id : req.session.passport.user._id}, {_id : 0, item : 1, item : {$elemMatch : {name : state_1}}}, function(err, findItemPrev) {
+									User.update({_id : req.session.passport.user._id}, {$inc : {add_damage : -findItemPrev.item[0].value}}, function(err) {
+										User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : name}}}, {$set : {"item.$.state" : "착용 중"}}, function(err) {
+											log = name + " 장착.";
+											query = {$inc : {add_damage : value}, $set : {state_1 : name}, $push : {"log" : log}};
+											User.update({_id : req.session.passport.user._id}, query, function(err) {
+												res.redirect('/game');
+												return;
+											});
+										});
+									});
 								});
 							});
 						}
@@ -432,7 +457,7 @@ app.post('/itemClearForm', function(req, res) {
 					if (effect === "무기") {
 						User.update({_id : req.session.passport.user._id, item : {$elemMatch: {name : name}}}, {$set : {"item.$.state" : ""}}, function(err) {
 							log = name + " 장착 해제";
-							query = {$inc : {add_damage : -value}, $push : {"log" : log}};
+							query = {$inc : {add_damage : -value}, $set : {"state_1" : ""}, $push : {"log" : log}};
 							User.update({_id : req.session.passport.user._id}, query, function(err) {
 								res.redirect('/game');
 								return;
@@ -450,10 +475,13 @@ app.post('/itemClearForm', function(req, res) {
 	}
 });
 //DB셋팅용 임시소스
-Map.update({place : "헤이븐"}, {$pushAll : {item : [
-	{name : "커터칼", effect : "무기", value : 1, count : 1},
-	{name : "나이프", effect : "무기", value : 2, count : 1}
-]}}, function(err) {});
+// Map.update({place : "헤이븐"}, {$pushAll : {item : [
+// 	{name : "커터칼", effect : "무기", value : 1, count : 1},
+// 	{name : "나이프", effect : "무기", value : 2, count : 1}
+// ]}}, function(err) {});
+// User.update({user_nick : "닝겐1"}, {$pushAll : {item : [
+// 	{name : "방탄조끼", effect : "방어구(몸통)", value : 3, count : 1}
+// ]}}, function(err) {});
 //조회용 임시소스
 // Map.find({map : "시작 지점"}, {_id : 0, place : 1}, function(err, result) {
 // 	var randNum = Math.floor(Math.random() * result.length);

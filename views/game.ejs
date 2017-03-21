@@ -14,7 +14,7 @@
 					공격력 : <%= userStat.attack + userStat.add_damage %>
 					<% for (i = 0; i < userStat.item.length; i++) { %>
 						<% if (userStat.item[i].state === "착용 중") { %>
-							(+ <%=userStat.item[i].value %>)
+							(+ <%=userStat.add_damage %>)
 							<input type="button" value="<%= userStat.item[i].name %>" />
 						<% } %>
 					<% } %>
@@ -32,9 +32,9 @@
 							<li>
 								<% if (userStat.item[i].state !== "착용 중") { %>
 								<input type="button" value="<%= userStat.item[i].name %>" /><% if (userStat.item[i].effect === "생명력" || userStat.item[i].effect === "파워") { %>(<%= userStat.item[i].count %>)<% }%>
-								<% }%>
+								<% } %>
 							</li>
-							<% }%>
+							<% } %>
 						</ul>
 						<input type="hidden" name="itemValue" id="hidden" value="" />
 					</form>
