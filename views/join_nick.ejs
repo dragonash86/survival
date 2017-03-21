@@ -1,0 +1,39 @@
+<% include include/header.ejs %>
+	<div class="container join">
+		<h2>닉네임 입력</h2>
+		<form action="/joinNickForm" method="post">
+		    <fieldset>
+		        <legend class="blind">회원가입 폼</legend>
+		        <ul class="border_layout">
+					<li>
+						<label for="userNick">닉네임</label>
+						<input type="text" id="userNick" name="userNick" autocomplete="off" />
+						<span></span>
+					</li>
+		        </ul>
+		    </fieldset>
+		</form>
+		<a href="#n" class="btn">입력완료</a>
+	</div>
+	<script>
+		$(function() {
+			function validation() {
+				if($("#userNick").val() === "") {
+					$("#userNick").next().text("닉네임을 입력하세요.");
+					$("#userNick").focus();
+					return;
+				} else {
+					$("#userNick").next().text("");
+				}
+				$(".join form").submit();
+			}
+			$("input").keydown(function(key) {
+				if(key.keyCode == 13) validation();
+			});
+			$(".btn").click(function(e) {
+				e.preventDefault();
+				validation();
+			});
+		});
+	</script>
+<% include include/footer.ejs %>

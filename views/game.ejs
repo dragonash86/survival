@@ -27,12 +27,31 @@
 				<li class="item">
 					아이템 : 
 					<form action="/itemForm" id="item" method="post">
-						<ul> 
+						<ul>
 							<% for (i = 0; i < userStat.item.length; i++) { %>
 							<li>
 								<% if (userStat.item[i].state !== "착용 중") { %>
 								<input type="button" value="<%= userStat.item[i].name %>" /><% if (userStat.item[i].effect === "생명력" || userStat.item[i].effect === "파워") { %>(<%= userStat.item[i].count %>)<% }%>
 								<% } %>
+								<div>
+									효과 : 
+									<%= userStat.item[i].effect %>
+									<%= userStat.item[i].value %>
+									<%
+										var result; 
+										if (userStat.item[i].effect === "생명력" || userStat.item[i].effect === "파워") {
+											result = "회복";
+										} else {
+											result = "";
+										}
+										// else if (userStat.item[i].effect === "무기") {
+										// 	result = "공격력";
+										// } else if (userStat.item[i].effect === "방어구") {
+										// 	result = "방어력";
+										// }
+									%>
+									<%= result %>
+								</div>
 							</li>
 							<% } %>
 						</ul>
@@ -103,6 +122,12 @@
 			$("#itemClear input").click(function() {
 				$("#itemClear #hidden").val($(this).context.value);
 				$("#itemClear").submit();
+			});
+			//아이템 레이어
+			$("#item input").hover(function() {
+				$(this).parent().addClass("on");
+			}, function() {
+				$(this).parent().removeClass("on");
 			});
 		});
 	</script>

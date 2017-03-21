@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 var session = require('express-session');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var NaverStrategy = require('passport-naver').Strategy;
 var flash = require('connect-flash');
 var app = express();
 
@@ -54,9 +55,9 @@ console.log("Server running on port 3000");
 
 //전역 스키마 생성
 var userData = mongoose.Schema({
-    user_id : {type : String, unique : true, required : true},
-    user_pw : {type : String, required : true},
-    user_nick : {type : String, unique : true, required : true},
+    user_id : {type : String, unique : true},
+    user_pw : {type : String},
+    user_nick : {type : String, unique : true},
     map : {type : String},
     place : {type : String},
     lv : {type : Number},
@@ -79,6 +80,8 @@ var userData = mongoose.Schema({
     attack : {type : Number},
     add_damage : {type : Number},
     kill : {type : Number},
+    email : {type : String},
+    sns : {type : String},
     created_at : {type : Date, default : Date.now},
     last_logout : {type : Date}
 });
@@ -95,6 +98,10 @@ var mapData = mongoose.Schema({
     death : [String]
 });
 var Map = mongoose.model('mapData', mapData);
+
+app.get('/join', function(req, res) {
+	res.render('join');
+});
 //회원가입
 app.post('/joinForm', function(req, res) {
     var user = new User({
@@ -122,7 +129,9 @@ app.post('/joinForm', function(req, res) {
     	state_4 : "",
     	state_5 : "",
     	log : [],
-    	read_log : ""
+    	read_log : "",
+    	email : "",
+    	sns : ""
    	});
     user.save(function(err) {
         if (err) {
@@ -132,9 +141,6 @@ app.post('/joinForm', function(req, res) {
         else res.send('<script>alert("가입 완료");location.href="/";</script>');
     });
 });
-app.get('/join', function(req, res) {
-	res.render('join');
-});
 //로그인
 passport.serializeUser(function(user, done) {
 	done(null, user);
@@ -143,7 +149,7 @@ passport.deserializeUser(function(user, done) {
 	done(null, user);
 });
 passport.use(new LocalStrategy({passReqToCallback : true},function (req, username, password, done) {
-	User.findOne({ user_id : username }, function (err, user) {
+	User.findOne({user_id : username}, function (err, user) {
 		if (err) {
 			return done(err);
 		}
@@ -155,6 +161,124 @@ passport.use(new LocalStrategy({passReqToCallback : true},function (req, usernam
 		}
 		return done(null, user);
    	});
+}));
+
+//네이버 로그인
+app.get('/join_nick', function(req, res) {
+	res.render('join_nick');
+});
+app.post('/joinNickForm', function(req, res) {
+	if (!user) {
+	    var user = new User({
+	    	user_nick : req.body.userNick,
+	    	map : "한번도 참가 안 함",
+	    	place : "",
+	    	lv : 1,
+	    	max_hp : 100,
+	    	hp : 100,
+	    	max_pw : 25,
+	    	pw : 25,
+	    	max_exp : 10,
+	    	exp : 0,
+	    	attack : 1,
+	    	kill : 0,
+	    	add_damage : 0,
+	    	match : "",
+	    	attackAfter : "",
+	    	item : [],
+	    	state_1 : "",
+	    	state_2 : "",
+	    	state_3 : "",
+	    	state_4 : "",
+	    	state_5 : "",
+	    	log : [],
+	    	read_log : "",
+	    	email : naverInfo.email,
+	    	sns : naverInfo.sns
+	   	});
+	    user.save(function(err) {
+	        if (err) {
+	        	res.send('<script>alert("사용 중인 닉네임 또는 아이디 입니다.");location.href="/join_nick";</script>');
+	        	return console.error(err);
+	        }
+	        else res.send('<script>alert("가입 완료");location.href="/";</script>');
+	    });
+	} else {
+		res.render('main');
+	}
+});
+passport.use(new NaverStrategy({
+        clientID: "_SX5sVw5qJDBFgMAsJ8p",
+        clientSecret: "JUbcQKTuCB",
+        callbackURL: "/login/naver"
+	}, function(accessToken, refreshToken, profile, done) {
+		process.nextTick(function () {
+			naverInfo = {
+				email : profile.emails[0].value,
+				name : profile.displayName,
+				sns : 'naver'
+			};
+			return done(null, profile);
+		});
+	    // User.findOne({'naver.id' : profile.id}, function(err, user) {
+	    //     if (!user) {
+	    //     	var user = new User({
+	    //     		user_nick : "",
+			  //   	map : "한번도 참가 안 함",
+			  //   	place : "",
+			  //   	lv : 1,
+			  //   	max_hp : 100,
+			  //   	hp : 100,
+			  //   	max_pw : 25,
+			  //   	pw : 25,
+			  //   	max_exp : 10,
+			  //   	exp : 0,
+			  //   	attack : 1,
+			  //   	kill : 0,
+			  //   	add_damage : 0,
+			  //   	match : "",
+			  //   	attackAfter : "",
+			  //   	item : [],
+			  //   	state_1 : "",
+			  //   	state_2 : "",
+			  //   	state_3 : "",
+			  //   	state_4 : "",
+			  //   	state_5 : "",
+			  //   	log : [],
+			  //   	read_log : "",
+			  //   	email : profile.emails[0].value,
+			  //   	sns : "naver"
+			  //  	});
+	    //         user.save(function(err) {
+	    //             if (err) console.log(err);
+	    //             return done(err, user);
+	    //         });
+	    //     } else {
+	    //         return done(err, user);
+	    //     }
+	    // });
+    }
+));
+function ensureAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) { return next(); }
+	res.redirect('/login');
+}
+app.get('/account', ensureAuthenticated, function(req, res) {
+	console.log(req.user);
+	res.render('account', {user : req.user});
+});
+app.get('/login/naver', passport.authenticate('naver'), function(req, res) {
+	User.find({email : req.user._json.email}, {_id : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
+		if (userValue[0].user_nick !== "") {
+			res.render('main', {user : userValue[0]});
+		} else {
+			res.render('join_nick');
+		}
+	});
+});
+app.get('/login/naver/callback', passport.authenticate('naver', {
+    successRedirect: '/',
+    failureRedirect: '/login'
 }));
 app.post('/loginForm', passport.authenticate('local', {
 	successRedirect: '/',
@@ -197,7 +321,7 @@ app.get('/game', function(req, res) {
 			User.find({user_nick : userValue[0].match}, {_id : 0, hp : 1}, function(err, matchValue) {
 				User.find({user_nick : userValue[0].attackAfter}, {_id : 0, user_nick:1, hp : 1}, function(err, attackAfterValue) {
 					res.render('game', {user:req.user, userStat:userValue[0], matchStat:matchValue[0], attackAfter:attackAfterValue[0]});
-				});	
+				});
 			});
 		});
 	} else {

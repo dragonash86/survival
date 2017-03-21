@@ -56,3 +56,5 @@ h3{padding:20px 0}
 .game .status li{line-height:30px}
 .game .item li{float:left;margin-right:10px}
 .game .item li input{height:25px;line-height:25px;border:1px solid #1c2833;cursor:pointer;padding:0 10px}
+.game .item li div{display:none;position:absolute;border:1px solid #000;background:#fff;padding:10px}
+.game .item li.on div{display:block}
