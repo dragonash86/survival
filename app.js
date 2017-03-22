@@ -9,7 +9,7 @@ var flash = require('connect-flash');
 var app = express();
 
 app.use(express.static(__dirname + '/public'));
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended : false}));
 app.use(session({
 	secret: 'kkillyupkkillyupkkillyupson',
 	resave: false,
@@ -74,7 +74,7 @@ var userData = mongoose.Schema({
     state_4 : {type : String},
     state_5 : {type : String},
     log : [String],
-    read_log : {type : String},
+    read_log : [String],
     match : {type : String},
     attackAfter : {type : String},
     attack : {type : Number},
@@ -129,7 +129,7 @@ app.post('/joinForm', function(req, res) {
     	state_4 : "",
     	state_5 : "",
     	log : [],
-    	read_log : "",
+    	read_log : [],
     	email : "",
     	sns : ""
    	});
@@ -164,116 +164,73 @@ passport.use(new LocalStrategy({passReqToCallback : true},function (req, usernam
 }));
 
 //네이버 로그인
-app.get('/join_nick', function(req, res) {
-	res.render('join_nick');
-});
-app.post('/joinNickForm', function(req, res) {
-	if (!user) {
-	    var user = new User({
-	    	user_nick : req.body.userNick,
-	    	map : "한번도 참가 안 함",
-	    	place : "",
-	    	lv : 1,
-	    	max_hp : 100,
-	    	hp : 100,
-	    	max_pw : 25,
-	    	pw : 25,
-	    	max_exp : 10,
-	    	exp : 0,
-	    	attack : 1,
-	    	kill : 0,
-	    	add_damage : 0,
-	    	match : "",
-	    	attackAfter : "",
-	    	item : [],
-	    	state_1 : "",
-	    	state_2 : "",
-	    	state_3 : "",
-	    	state_4 : "",
-	    	state_5 : "",
-	    	log : [],
-	    	read_log : "",
-	    	email : naverInfo.email,
-	    	sns : naverInfo.sns
-	   	});
-	    user.save(function(err) {
-	        if (err) {
-	        	res.send('<script>alert("사용 중인 닉네임 또는 아이디 입니다.");location.href="/join_nick";</script>');
-	        	return console.error(err);
-	        }
-	        else res.send('<script>alert("가입 완료");location.href="/";</script>');
-	    });
-	} else {
-		res.render('main');
+function ensureAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) { 
+		return next(); 
 	}
+	res.redirect('/login');
+}
+app.get('/account', ensureAuthenticated, function(req, res) {
+	res.render('account', {user : req.user});
 });
 passport.use(new NaverStrategy({
         clientID: "_SX5sVw5qJDBFgMAsJ8p",
         clientSecret: "JUbcQKTuCB",
         callbackURL: "/login/naver"
 	}, function(accessToken, refreshToken, profile, done) {
-		process.nextTick(function () {
-			naverInfo = {
-				email : profile.emails[0].value,
-				name : profile.displayName,
-				sns : 'naver'
-			};
-			return done(null, profile);
-		});
-	    // User.findOne({'naver.id' : profile.id}, function(err, user) {
-	    //     if (!user) {
-	    //     	var user = new User({
-	    //     		user_nick : "",
-			  //   	map : "한번도 참가 안 함",
-			  //   	place : "",
-			  //   	lv : 1,
-			  //   	max_hp : 100,
-			  //   	hp : 100,
-			  //   	max_pw : 25,
-			  //   	pw : 25,
-			  //   	max_exp : 10,
-			  //   	exp : 0,
-			  //   	attack : 1,
-			  //   	kill : 0,
-			  //   	add_damage : 0,
-			  //   	match : "",
-			  //   	attackAfter : "",
-			  //   	item : [],
-			  //   	state_1 : "",
-			  //   	state_2 : "",
-			  //   	state_3 : "",
-			  //   	state_4 : "",
-			  //   	state_5 : "",
-			  //   	log : [],
-			  //   	read_log : "",
-			  //   	email : profile.emails[0].value,
-			  //   	sns : "naver"
-			  //  	});
-	    //         user.save(function(err) {
-	    //             if (err) console.log(err);
-	    //             return done(err, user);
-	    //         });
-	    //     } else {
-	    //         return done(err, user);
-	    //     }
-	    // });
+	    User.findOne({email : profile._json.email}, function(err, user) {
+	        if (!user) {
+	        	var user = new User({
+	        		user_nick : "",
+			    	map : "한번도 참가 안 함",
+			    	place : "",
+			    	lv : 1,
+			    	max_hp : 100,
+			    	hp : 100,
+			    	max_pw : 25,
+			    	pw : 25,
+			    	max_exp : 10,
+			    	exp : 0,
+			    	attack : 1,
+			    	kill : 0,
+			    	add_damage : 0,
+			    	match : "",
+			    	attackAfter : "",
+			    	item : [],
+			    	state_1 : "",
+			    	state_2 : "",
+			    	state_3 : "",
+			    	state_4 : "",
+			    	state_5 : "",
+			    	log : [],
+			    	read_log : [],
+			    	email : profile.emails[0].value,
+			    	sns : "naver"
+			   	});
+	            user.save(function(err) {
+	                if (err) console.log(err);
+	                return done(err, user);
+	            });
+	        } else {
+	            return done(err, user);
+	        }
+	    });
+
     }
 ));
-function ensureAuthenticated(req, res, next) {
-	if (req.isAuthenticated()) { return next(); }
-	res.redirect('/login');
-}
-app.get('/account', ensureAuthenticated, function(req, res) {
-	console.log(req.user);
-	res.render('account', {user : req.user});
-});
 app.get('/login/naver', passport.authenticate('naver'), function(req, res) {
-	User.find({email : req.user._json.email}, {_id : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
-		if (userValue[0].user_nick !== "") {
-			res.render('main', {user : userValue[0]});
-		} else {
-			res.render('join_nick');
-		}
+	if (req.user.user_nick !== "") {
+		res.render('main', {user : req.user});
+	} else {
+		res.render('join_nick', {user : req.user});
+	}
+});
+app.get('/join_nick', function(req, res) {
+	res.render('join_nick', {user : req.user});
+});
+app.post('/joinNickForm', function(req, res) {
+	User.update({_id : req.session.passport.user._id}, {$set : {user_nick : req.body.userNick}}, function(err) {
+		res.render('main', {user : req.user});
 	});
 });
 app.get('/login/naver/callback', passport.authenticate('naver', {
@@ -598,59 +555,3 @@ app.post('/itemClearForm', function(req, res) {
 		res.render('login');
 	}
 });
-//DB셋팅용 임시소스
-// Map.update({place : "헤이븐"}, {$pushAll : {item : [
-// 	{name : "커터칼", effect : "무기", value : 1, count : 1},
-// 	{name : "나이프", effect : "무기", value : 2, count : 1}
-// ]}}, function(err) {});
-// User.update({user_nick : "닝겐1"}, {$pushAll : {item : [
-// 	{name : "방탄조끼", effect : "방어구(몸통)", value : 3, count : 1}
-// ]}}, function(err) {});
-//조회용 임시소스
-// Map.find({map : "시작 지점"}, {_id : 0, place : 1}, function(err, result) {
-// 	var randNum = Math.floor(Math.random() * result.length);
-// 	console.log(result.length)
-// 	console.log(randNum);
-// 	console.log(result[randNum].place);
-// });
-// User.find({_id : "58be0a2156026f294c89be5a"}, {_id : 0, item : 1}, function(err, hasItemValue) {
-// 	var count = 0;
-// 	for (var i = 0; i < hasItemValue[0].item.length; i++) {
-// 		if (hasItemValue[0].item[i].name === "과자") {
-// 			count = count + 1;
-// 		}
-// 	}
-// 	console.log(count);
-// 	//console.log(hasItemValue[0].item.indexOf("과자"));
-// });
-// User.findOne({_id : "58be0a2156026f294c89be5a"}, {_id : 0, item : 1, item : {$elemMatch : {name : "과자"}}}, function(err, itemValue) {
-// 	console.log(itemValue.item[0]);
-// });
-// User.findOne({_id : "58be0a2156026f294c89be5a"}, function(err, result) { 
-// 	console.log(result.item);
-// });
-// User.update({_id : "58be0a2156026f294c89be5a", item : {$elemMatch: { name : "과자"}}}, {$inc: { "item.$.count" : -1 }}, function(err, result) {
-// 	console.log(result);
-// });
-
-// User.find({_id : "58be0a2156026f294c89be5a"}, {_id : 0, item : 1}, function(err, itemValue) {
-// 	console.log(itemValue[0].item[0].name);
-// });
-// User.find({'item.0.name' : "과자"}, {_id : 0, item : 1}, function(err, itemValue) {
-// 	console.log(itemValue);
-// });
-// Map.find({place : '오금'}, {_id : 0, item : 1 }, function(err, itemValue) {
-// 	var randNum = Math.floor(Math.random() * itemValue[0].item.length);
-// 	//console.log("랜덤 넘버 : "+randNum);
-// 	console.log(itemValue[0].item);
-// 	console.log(itemValue[0].item.length);
-// });
-//코테이션 테스트 
-//console.log('"<%= userStat.item['+'$(this).parent().index()'+'].name %>"');
-//console.log("<%= userStat.item["+$(this).parent().index()+"].name %>");
-//console.log('"<%= userStat.item[+"'$(this).parent().index()+'"+].name %>"');
-// var randNum = 1
-//console.log('"item.'+randNum+'"');// = 최종 "로 감싸짐
-//'"<%= userStat.item['+$(this).parent().index()+'].name %>"'
-//console.log('"<%= userStat.item['+$(this).parent().index()+'].name %>"');
-// console.log('"<%= userStat.item['+randNum+'].name %>"');
