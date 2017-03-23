@@ -1,17 +1,39 @@
 <% include include/header.ejs %>
-	<div class="container main">
 	<% if (user) { %>
+	<div class="header">
+		<ul>
+			<li>
+				골드 : <%= user.gold %> <a href="#n" class="open_layer">+</a>
+				<div class="layer">
+					<a href="#n" class="close">닫기</a>
+					<ul>
+						<li><a href="javascript:if (confirm('10진주로 10,000 골드를 구매하시겠습니까?')) location.href='/buy/?buy=buy_1';">10진주로 10,000 골드 구매</a></li>
+						<li><a href="javascript:if (confirm('50진주로 55,000 골드를 구매하시겠습니까?')) location.href='/buy/?buy=buy_2';">50진주로 55,000 골드 구매 (+10%)</a></li>
+						<li><a href="javascript:if (confirm('100진주로 120,000 골드를 구매하시겠습니까?')) location.href='/buy/?buy=buy_3';">100진주로 120,000 골드 구매 (+20%)</a></li>
+					</ul>
+				</div>
+			</li>
+			<li>진주 : <%= user.pearl %> <a href="#n">+</a></li>
+			<li>
+				<a href="#n" class="open_layer">설정</a>
+				<div class="layer">
+					<a href="#n" class="close">닫기</a>
+					<a href="/logout" class="btn">로그아웃</a><br />
+				</div>
+			</li>
+		</ul>
+	</div>
+	<div class="container main">
 		<div class="status">
 			<h2><%= user.user_nick %>님 안녕하세요.</h2> 
-			<a href="/logout" class="btn">로그아웃</a><br />
 			<form action="/joinGameForm" method="post">
-		    	<input type="submit" class="btn" value="참가하기" />
+		    	<input type="submit" class="btn" value="모험" />
 			</form>
 		</div>
 	<% } else { %>
 		<script>location.href = "/login";</script>
-	<% } %>
-    </div>
+	</div>
+    <% } %>
     <script>
 	</script>
 <% include include/footer.ejs %>

@@ -14,7 +14,7 @@ legend,caption,.blind{position:absolute;top:-9999px;font-size:0;line-height:0}
 label{cursor:pointer}
 *{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}
 
-/* common */
+/** common **/
 h2{padding:30px 0}
 h3{padding:20px 0}
 .blind{overflow:hidden;position:absolute;top:-9999px;left:-9999px;width:1px;height:1px;font-size:1px;height:1px}
@@ -25,6 +25,13 @@ h3{padding:20px 0}
 	.container{width:100%}
 }
 .border_layout{border-top:1px solid #111;border-bottom:1px solid #ddd;padding:15px 0}
+/* layer */
+.layer{display:none}
+.layer.on{display:block;position:absolute;background:#fff;border:1px solid #000;padding:20px}
+.layer .close{position:absolute;top:0;right:0;display:block;border:1px solid #000;padding:5px}
+/* header */
+.header li{float:left}
+
 
 /* 회원가입 */
 .join li label{display:inline-block;width:25.64%;font-weight:normal;color:#111;padding:27px 0}
@@ -45,16 +52,16 @@ h3{padding:20px 0}
 .login li{float:left}
 .login li:last-child{float:right}
 .login li span{color:#EA4836;padding:0 10px}
-/* 게임 */
-.game .action{overflow:hidden}
-.game .action li{float:left}
-.game .action input{display:block;width:158px;height:40px;line-height:36px;font-size:16px;text-align:center;color:#1c2833;border:1px solid #1c2833;cursor:pointer;margin-right:10px}
-.game .action input:hover{color:#fff;background:#1c2833;text-decoration:none}
-.game .meet{clear:left;display:block}
-.game .msg{clear:left;display:block}
-.game .status ul{overflow:hidden}
-.game .status li{line-height:30px}
-.game .item li{float:left;margin-right:10px}
-.game .item li input{height:25px;line-height:25px;border:1px solid #1c2833;cursor:pointer;padding:0 10px}
-.game .item li div{display:none;position:absolute;border:1px solid #000;background:#fff;padding:10px}
-.game .item li.on div{display:block}
+/* 모험 */
+.adventure .action{overflow:hidden}
+.adventure .action li{float:left}
+.adventure .action input{display:block;width:158px;height:40px;line-height:36px;font-size:16px;text-align:center;color:#1c2833;border:1px solid #1c2833;cursor:pointer;margin-right:10px}
+.adventure .action input:hover{color:#fff;background:#1c2833;text-decoration:none}
+.adventure .meet{clear:left;display:block}
+.adventure .msg{clear:left;display:block}
+.adventure .status ul{overflow:hidden}
+.adventure .status li{line-height:30px}
+.adventure .item li{float:left;margin-right:10px}
+.adventure .item li input{height:25px;line-height:25px;border:1px solid #1c2833;cursor:pointer;padding:0 10px}
+.adventure .item li div{display:none;position:absolute;border:1px solid #000;background:#fff;padding:10px}
+.adventure .item li.on div{display:block}
