@@ -607,7 +607,7 @@ app.get('/buy', function(req, res) {
 				res.send('<script>alert("진주가 부족합니다.");location.href="/main";</script>');
 			}
 		} else {
-			res.send('<script>alert("잘못된 요청입니다.");location.href="/main";</script>');
+			res.send('<script>alert("잘못된 요청 입니다.");location.href="/main";</script>');
 		}
 	} else {
 		res.render('login');
