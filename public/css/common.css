@@ -27,10 +27,12 @@ h3{padding:20px 0}
 .border_layout{border-top:1px solid #111;border-bottom:1px solid #ddd;padding:15px 0}
 /* layer */
 .layer{display:none}
-.layer.on{display:block;position:absolute;background:#fff;border:1px solid #000;padding:20px}
-.layer .close{position:absolute;top:0;right:0;display:block;border:1px solid #000;padding:5px}
+.layer.on{display:block;position:absolute;right:0;min-width:300px;min-height:300px;left:0;right:0;background:#fff;border:1px solid #000;padding:20px}
+.layer .close{position:absolute;top:-1px;right:-1px;display:block;border:1px solid #000;background:#fff;padding:5px}
 /* header */
-.header li{float:left}
+.header li{float:left;margin-right:15px}
+.header li.setting{float:right}
+.header li li{float:none}
 
 
 /* 회원가입 */
@@ -52,16 +54,16 @@ h3{padding:20px 0}
 .login li{float:left}
 .login li:last-child{float:right}
 .login li span{color:#EA4836;padding:0 10px}
-/* 모험 */
-.adventure .action{overflow:hidden}
-.adventure .action li{float:left}
-.adventure .action input{display:block;width:158px;height:40px;line-height:36px;font-size:16px;text-align:center;color:#1c2833;border:1px solid #1c2833;cursor:pointer;margin-right:10px}
-.adventure .action input:hover{color:#fff;background:#1c2833;text-decoration:none}
-.adventure .meet{clear:left;display:block}
-.adventure .msg{clear:left;display:block}
-.adventure .status ul{overflow:hidden}
-.adventure .status li{line-height:30px}
-.adventure .item li{float:left;margin-right:10px}
-.adventure .item li input{height:25px;line-height:25px;border:1px solid #1c2833;cursor:pointer;padding:0 10px}
-.adventure .item li div{display:none;position:absolute;border:1px solid #000;background:#fff;padding:10px}
-.adventure .item li.on div{display:block}
+/* 서바이벌 */
+.survival .action{overflow:hidden}
+.survival .action li{float:left}
+.survival .action input{display:block;width:158px;height:40px;line-height:36px;font-size:16px;text-align:center;color:#1c2833;border:1px solid #1c2833;cursor:pointer;margin-right:10px}
+.survival .action input:hover{color:#fff;background:#1c2833;text-decoration:none}
+.survival .meet{clear:left;display:block}
+.survival .msg{clear:left;display:block}
+.survival .status ul{overflow:hidden}
+.survival .status li{line-height:30px}
+.survival .item li{float:left;margin-right:10px}
+.survival .item li input{height:25px;line-height:25px;border:1px solid #1c2833;cursor:pointer;padding:0 10px}
+.survival .item li div{display:none;position:absolute;border:1px solid #000;background:#fff;padding:10px}
+.survival .item li.on div{display:block}

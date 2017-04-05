@@ -1,0 +1,42 @@
+	<% if (user) { %>
+	<div class="header">
+		<ul>
+			<% if (user) { %><!-- 나중에 메인에선 메인 안뜨게 만들기, 하위메뉴에선 메인 뜨고 하위메뉴 타이틀 넣기 -->
+			<li><a href="/main" class="">메인</a></li>
+			<% } %>
+			<li>
+				골드 : <%= user.gold %> <a href="#n" class="open_layer">+</a>
+				<div class="layer">
+					<ul>
+						<li><a href="javascript:if (confirm('10진주로 10,000 골드를 구매하시겠습니까?')) location.href='/buy/?buy=buy_1';">10진주로 10,000 골드 구매</a></li>
+						<li><a href="javascript:if (confirm('50진주로 55,000 골드를 구매하시겠습니까?')) location.href='/buy/?buy=buy_2';">50진주로 55,000 골드 구매 (+10%)</a></li>
+						<li><a href="javascript:if (confirm('100진주로 120,000 골드를 구매하시겠습니까?')) location.href='/buy/?buy=buy_3';">100진주로 120,000 골드 구매 (+20%)</a></li>
+					</ul>
+					<a href="#n" class="close">닫기</a>
+				</div>
+			</li>
+			<li>진주 : <%= user.pearl %> <a href="#n">+</a></li>
+			<li>
+				<a href="#n" class="open_layer">퀘스트</a>
+				<div class="layer">
+					<ul>
+						<li><a href="#n">일일퀘스트</a></li>
+						<li><a href="#n">주간퀘스트</a></li>
+						<li><a href="#n">업적</a></li>
+					</ul>
+					<a href="#n" class="close">닫기</a>
+				</div>
+			</li>
+			<li><%= user.user_nick %></li>
+			<li class="setting">
+				<a href="#n" class="open_layer">설정</a>
+				<div class="layer">
+					<a href="/logout" class="btn">로그아웃</a><br />
+					<a href="#n" class="close">닫기</a>
+				</div>
+			</li>
+		</ul>
+	</div>
+	<% } else { %>
+		<script>location.href = "/login";</script>
+    <% } %>

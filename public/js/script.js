@@ -7,4 +7,11 @@ $(function() {
 		e.preventDefault();
 		$(this).parent().removeClass("on");
 	});
+	$(document).keydown(function(e) {
+		var code = e.keyCode ? e.keyCode : e.which;
+		if (code === 27) {
+			$(".layer.on").removeClass("on");
+	    }
+	});
+
 });

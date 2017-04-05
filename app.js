@@ -35,7 +35,7 @@ app.get('/main', function(req, res) {
 		res.redirect('/login');
 	}
 });
-app.get('/adventure', function(req, res) {
+app.get('/survival', function(req, res) {
 	if (req.user) {
 		User.find({_id : req.user._id}, {_id : 0, last_logout : 0, user_id : 0, user_pw : 0, __v : 0 }, function(err, userValue) {
 			//로그있으면 게임화면에서 보여주고 읽은 로그로 데이터 이동
@@ -49,7 +49,7 @@ app.get('/adventure', function(req, res) {
 			}
 			User.find({user_nick : userValue[0].match}, {_id : 0, hp : 1}, function(err, matchValue) {
 				User.find({user_nick : userValue[0].attackAfter}, {_id : 0, user_nick:1, hp : 1}, function(err, attackAfterValue) {
-					res.render('adventure', {user:req.user, userStat:userValue[0], matchStat:matchValue[0], attackAfter:attackAfterValue[0]});
+					res.render('survival', {user:userValue[0], matchStat:matchValue[0], attackAfter:attackAfterValue[0]});
 				});
 			});
 		});
@@ -303,13 +303,13 @@ app.get('/itemForm', function(req, res) {
 	}
 });
 var startMap = "시작 지점";
-//게임 참가
-app.post('/joinGameForm', function(req, res) {
+//서바이벌 참가
+app.post('/survivalForm', function(req, res) {
 	if (req.user) {
 	   	var startPlace = "안전 지대";
 		User.update({_id : req.user._id}, {$set : {map : startMap, place : startPlace}}, function(err) {
 			Map.update({place : startPlace}, {$addToSet : {user : req.session.passport.user.user_nick}}, function(err) {
-				res.redirect('/adventure');
+				res.redirect('/survival');
 			});
 		});
 	} else {
@@ -359,14 +359,14 @@ app.post('/moveForm', function(req, res) {
 										User.update({_id : req.user._id}, {$push : {item : randomItem, log : log}}, function(err) {
 										});	
 									}
-									res.redirect('/adventure');
+									res.redirect('/survival');
 									return;
 								});
 							});
 						});
 					} else {
 						User.update({_id : req.user._id}, {$push : {log : "이 장소엔 더 이상 쓸만한 게 없는 것 같다."}}, function(err) {
-							res.redirect('/adventure');
+							res.redirect('/survival');
 							return;
 						});
 					}
@@ -384,12 +384,12 @@ app.post('/moveForm', function(req, res) {
 						User.update({_id : req.user._id}, {$set : {match : match}}, function(err) {
 						});
 					}
-					res.redirect('/adventure');
+					res.redirect('/survival');
 					return;
 				});
 			}
 		} else {
-			res.send('<script>alert("파워가 부족합니다.");location.href="/adventure";</script>');
+			res.send('<script>alert("파워가 부족합니다.");location.href="/survival";</script>');
 		}
 	} else {
 		res.render('login');
@@ -427,14 +427,14 @@ app.post('/attackForm', function(req, res) {
 											{name : "아메리카노", effect : "생명력", value : 10, count : 1},
 											{name : "박카스", effect : "파워", value : 10, count : 1}
 										]}}, function(err) {
-											res.redirect('/adventure');
+											res.redirect('/survival');
 											return;
 										});
 									});
 								});
 							});
 						} else {
-							res.redirect('/adventure');
+							res.redirect('/survival');
 							return;
 						}
 					});
@@ -485,11 +485,11 @@ app.post('/itemForm', function(req, res) {
 							User.update({_id : req.user._id, item : {$elemMatch: {name : name}}}, {$inc: {"item.$.count" : -1}}, function(err) {
 								if (findItem.item[0].count === 1) {
 									User.update({_id : req.user._id}, {$pull : {item : {name : name}}}, function(err) {
-										res.redirect('/adventure');
+										res.redirect('/survival');
 										return;
 									});
 								} else {
-									res.redirect('/adventure');
+									res.redirect('/survival');
 									return;
 								}
 							});
@@ -500,7 +500,7 @@ app.post('/itemForm', function(req, res) {
 								log = name + " 장착.";
 								query = {$inc : {add_damage : value}, $set : {state_1 : name}, $push : {"log" : log}};
 								User.update({_id : req.user._id}, query, function(err) {
-									res.redirect('/adventure');
+									res.redirect('/survival');
 									return;
 								});
 							});
@@ -512,7 +512,7 @@ app.post('/itemForm', function(req, res) {
 											log = name + " 장착.";
 											query = {$inc : {add_damage : value}, $set : {state_1 : name}, $push : {"log" : log}};
 											User.update({_id : req.user._id}, query, function(err) {
-												res.redirect('/adventure');
+												res.redirect('/survival');
 												return;
 											});
 										});
@@ -524,13 +524,13 @@ app.post('/itemForm', function(req, res) {
 						log = "사용할 수 없는 아이템입니다.";
 						query = {$push : {"log" : log}};
 						User.update({_id : req.user._id}, query, function(err) {
-							res.redirect('/adventure');
+							res.redirect('/survival');
 							return;
 						});
 					}
 				});
 			} else {
-				res.send('<script>alert("존재하지 않는 아이템 입니다.");location.href="/adventure";</script>');
+				res.send('<script>alert("존재하지 않는 아이템 입니다.");location.href="/survival";</script>');
 				return;
 			}
 		});
@@ -557,14 +557,14 @@ app.post('/itemClearForm', function(req, res) {
 							log = name + " 장착 해제";
 							query = {$inc : {add_damage : -value}, $set : {"state_1" : ""}, $push : {"log" : log}};
 							User.update({_id : req.user._id}, query, function(err) {
-								res.redirect('/adventure');
+								res.redirect('/survival');
 								return;
 							});
 						});
 					}
 				});
 			} else {
-				res.send('<script>alert("존재하지 않는 아이템 입니다.");location.href="/adventure";</script>');
+				res.send('<script>alert("존재하지 않는 아이템 입니다.");location.href="/survival";</script>');
 				return;
 			}
 		});

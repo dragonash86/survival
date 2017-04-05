@@ -1,52 +1,52 @@
 <% include include/header.ejs %>
-	<div class="container adventure">
-		<a href="/logout" class="btn">로그아웃</a>
-		<% if (userStat.hp > 0) { %>
+<% include include/top_info.ejs %>
+	<div class="container survival">
+		<% if (user.hp > 0) { %>
 		<div class="status">
-			<h1><%= userStat.map %></h1>
+			<h1><%= user.map %></h1>
 			<ul>
-				<li>현재 위치 : <%= userStat.place %></li>
-				<li>닉네임 : <%= userStat.user_nick %></li>
-				<li>레벨 : <%= userStat.lv %></li>
-				<li>생명력 : <%= userStat.hp %>/<%= userStat.max_hp %></li>
+				<li>현재 위치 : <%= user.place %></li>
+				<li>닉네임 : <%= user.user_nick %></li>
+				<li>레벨 : <%= user.lv %></li>
+				<li>생명력 : <%= user.hp %>/<%= user.max_hp %></li>
 				<li>
 					<form action="/itemClearForm" id="itemClear" method="post">
-					공격력 : <%= userStat.attack + userStat.add_damage %>
-					<% for (i = 0; i < userStat.item.length; i++) { %>
-						<% if (userStat.item[i].state === "착용 중") { %>
-							(+ <%=userStat.add_damage %>)
-							<input type="button" value="<%= userStat.item[i].name %>" />
+					공격력 : <%= user.attack + user.add_damage %>
+					<% for (i = 0; i < user.item.length; i++) { %>
+						<% if (user.item[i].state === "착용 중") { %>
+							(+ <%=user.add_damage %>)
+							<input type="button" value="<%= user.item[i].name %>" />
 						<% } %>
 					<% } %>
 					<input type="hidden" name="itemClearValue" id="hidden" value="" />
 					</form>
 				</li>
-				<li>파워 : <%= userStat.pw %>/<%= userStat.max_pw %></li>
-				<li>경험치 : <%= userStat.exp %>/<%= userStat.max_exp %></li>
-				<li>Kill : <%= userStat.kill %></li>
+				<li>파워 : <%= user.pw %>/<%= user.max_pw %></li>
+				<li>경험치 : <%= user.exp %>/<%= user.max_exp %></li>
+				<li>Kill : <%= user.kill %></li>
 				<li class="item">
 					아이템 : 
 					<form action="/itemForm" id="item" method="post">
 						<ul>
-							<% for (i = 0; i < userStat.item.length; i++) { %>
+							<% for (i = 0; i < user.item.length; i++) { %>
 							<li>
-								<% if (userStat.item[i].state !== "착용 중") { %>
-								<input type="button" value="<%= userStat.item[i].name %>" /><% if (userStat.item[i].effect === "생명력" || userStat.item[i].effect === "파워") { %>(<%= userStat.item[i].count %>)<% }%>
+								<% if (user.item[i].state !== "착용 중") { %>
+								<input type="button" value="<%= user.item[i].name %>" /><% if (user.item[i].effect === "생명력" || user.item[i].effect === "파워") { %>(<%= user.item[i].count %>)<% }%>
 								<% } %>
 								<div>
 									효과 : 
-									<%= userStat.item[i].effect %>
-									<%= userStat.item[i].value %>
+									<%= user.item[i].effect %>
+									<%= user.item[i].value %>
 									<%
 										var result; 
-										if (userStat.item[i].effect === "생명력" || userStat.item[i].effect === "파워") {
+										if (user.item[i].effect === "생명력" || user.item[i].effect === "파워") {
 											result = "회복";
 										} else {
 											result = "";
 										}
-										// else if (userStat.item[i].effect === "무기") {
+										// else if (user.item[i].effect === "무기") {
 										// 	result = "공격력";
-										// } else if (userStat.item[i].effect === "방어구") {
+										// } else if (user.item[i].effect === "방어구") {
 										// 	result = "방어력";
 										// }
 									%>
@@ -70,16 +70,16 @@
 				</ul>
 				<input type="hidden" name="moveValue" id="hidden" value="" />
 			</form>
-			<% if (userStat.match) { %>
+			<% if (user.match) { %>
 			<div class="meet">
-				<h3><%= userStat.match %> 조우</h3>
+				<h3><%= user.match %> 조우</h3>
 				<p>체력 : <%= matchStat.hp %></p>
 				<form action="/attackForm" id="attack" method="post">
 					<ul class="action">
 						<li><input type="button" value="공격" /></li>
 					</ul>
 				</form>
-				<% if (userStat.attackAfter) { %>
+				<% if (user.attackAfter) { %>
 				<div class="" id="after">
 					<h3><%= attackAfter.user_nick %></h3>
 					<p >체력 : <%= attackAfter.hp %></p>
@@ -93,9 +93,9 @@
 				<% } %>
 			</div>
 			<% } %>
-			<% if (userStat.log) { %>
+			<% if (user.log) { %>
 			<div class="log">
-				<h3><%= userStat.log %></h3>
+				<h3><%= user.log %></h3>
 			</div>
 			<% } %>
 		</div>
